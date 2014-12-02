@@ -1,0 +1,252 @@
+\section{Equivalence} \label{equivalence}
+
+% This equivalence aim at answering the following questions 
+
+% How we go from one event-loop to multiple event-loop ?
+% How we distribute the data / functions / references in this event-loop split ?
+
+% We define in this section the target language.
+
+% This language aim to break the frontiers between the multiple computing machines, and allow the expression of a truely distributed application as one entity.
+
+% A procedural language adds function to a purely imperative language.
+% These elements allow encapsulation of statements, and states.
+
+% This target language add a new element to the source - procedural - language called the fluxion, which is equivalent to a single computing machine with asynchronism communication.
+% It has the same capabilities of computation, state and asynchronous communication.
+% Because a fluxion is to be considered an independent computing machine, it conserves the original frontier.
+% But because the language include this new elements, it allows to design outside this frontier.
+
+
+
+In the last tow sections, we defined the source and the target language for the equivalence we detail in this section.
+The source language exposes \textit{rupture points}, functions, is lexically scoped and uses eager evaluation.
+The target language exposes only \textit{fluxions} and \textit{calls}.
+
+\begin{figure}\label{fig:equivalence}
+\begin{center}
+\begin{tabular}{r c l}
+L1             & \small{$\to$} &  L2 \\ \hline
+Function       & \small{$\to$} &  Fluxion \\
+Rupture point  & \small{$\to$} &  Fluxion call \\
+?              & \small{$\to$} &  Call characteristic \\
+\end{tabular}
+\end{center}
+\caption{L1/L2 equivalence overview}
+\end{figure}
+
+The rupture points from L1 mark out application parts.
+If an application parts is independent, it is possible to encapsulate it into a fluxion.
+The rupture points gives the topology of fluxion calls in L2.
+The call characteristics in L2 don't yet have en equivalence in L1.
+
+\subsection{Application part independence}
+
+An application part is independent if it doesn't cause any side-effects on other application parts.
+A side-effects is a modification of the state of the application perceptible by another parts.
+The state of an application is composed of a stack of overlapping scopes and a heap of dynamic objects.
+\textit{A scope is the portion of source code in which a binding of a name with an entity applies.}\footnote{specification of ALGOL 60}
+If two application parts share one or more scopes, one part has the possibility to modify the environment perceptible by the other.
+If two different names from two different application parts point to the same dynamic object, one part has the possibility to modify the environment perceptible by the other.
+To assure the independence of an application part, we need to assure that it doesn't cause side-effects by modifying both shared scopes, or shared dynamic objects.
+
+\subsubsection{Scope independence}
+
+There is two types of scoping, dynamic and lexical.
+The lexical scope is static, the resolution of a name depends only on its lexical position within the source code.
+By opposition, a dynamic scope doesn't allow static resolution of names, because it depends on the state of the program.
+A lexical scope is either global, or delimited by a module, a file, a function, a block or an expression.
+Most imperative languages present a lexical scope, even the more dynamic languages such as Python, Java or Ruby.
+Javascript doesn't present a lexical scope because of two instructions : \texttt{eval} and \texttt{with}.
+Languages in the class L1 use a lexical scope.
+
+A rupture point breaks the source code in two parts.
+Some scopes spans on both application parts, e.g. the global scope.
+To assure its independence, an application part cannot access nor modify names from shared scopes.
+As the scope is static, it is possible to analyze the source, and detect the variables used from shared scopes.
+
+We identify different cases involving two or more application parts in the subset of Javascript presenting a lexical scope.
+A name is used when it is declared (\textit{d}), written (\textit{w}) or read (\textit{r}).
+We call \textit{u} - for upstream - the calling application part, and \textit{d} - for downstream - the callee application part.
+
+
+\comment{TODO the next paragraph is kind-of the truth about lexical scope}
+In an environment record, it is possible to create, delete, initialize, set and get a binding\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html#sec-environment-records}}.
+After these operations, a binding can be inexistent, initialized, read and written.
+A binding is inexistent if its identifier is not created, or if it is deleted.
+A binding is initialized if it is only created, initialized or set, but not gotten.
+A binding is read if it is only gotten, but not created, initialized nor set.
+A binding is written if it is both initialized and read.
+Referencing an inexistent identifier leads to a ReferenceError \footnote{\url{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError}}.
+A valid program cannot contain such an error.
+As we consider only valid programs, it is impossible to read an inexistent identifier.
+Reading or initializing an identifier guarantee its existence.
+Writing on an identifier implies it can be both read and initialized.
+However, reading an identifier doesn't imply the need to initialize it, and initializing it doesn't imply the need to read it.
+These binding states are ordered as follow :
+inexistent < initialized < written
+inexistent < read < written
+
+
+
+
+
+\begin{tabular}{|p{1cm}|p{1.6cm}|p{3cm}|p{1.3cm}|}
+\hline
+\multirow{11}{1cm}{All \small{64~cases}}
+& \multirow{5}{1.8cm}{Not sharing \small{43~cases}} &
+    Not used \newline \small{1~case} &
+      u:\texttt{_~_~_} \newline d:\texttt{_~_~_} \\
+\cline{3-4}
+& & \multirow{2}{3cm}{Used by only one part \newline \small{15~cases}} &
+      u:\texttt{_~_~_} \newline d:\texttt{*~*~*} \\
+\cline{4-4}
+& & & u:\texttt{*~*~*} \newline d:\texttt{_~_~_} \\
+\cline{3-4}
+& & \multirow{1}{3cm}{Downstream declares \newline \small{32~cases}} &
+      u:\texttt{*~*~*} \newline d:\texttt{d~*~*} \\
+\cline{2-4}
+& \multirow{3}{1.8cm}{Send value downstream \newline \small{7~cases}} &
+    \multirow{2}{3cm}{Upstream writes, Downstream reads \newline \small{6~cases}} &
+      u:\texttt{*~w~*} \newline d:\texttt{_~_~r} \\
+\cline{4-4}
+& & & u:\texttt{d~_~*} \newline d:\texttt{_~_~r} \\
+\cline{3-4}
+& & Both reads \newline \small{1~case} &
+      u:\texttt{_~_~r} \newline d:\texttt{_~_~r} \\
+\cline{2-4}
+& \multirow{3}{1.8cm}{Store value downstream \newline \small{2~cases}} &
+    Upstream declares, Downstream writes \newline \small{2~cases} &
+      u:\texttt{d~_~_} \newline d:\texttt{_~w~*} \\
+\cline{2-4}
+& \multirow{2}{1.8cm}{Not independent \newline \small{12~cases}} &
+    Both write \newline \small{8~cases} &
+      u:\texttt{*~w~*} \newline d:\texttt{_~w~*} \\
+\cline{3-4}
+& & Upstream reads, Downstream writes \newline \small{4~cases} &
+      u:\texttt{*~_~r} \newline d:\texttt{_~w~*} \\
+\hline
+\end{tabular}
+
+\begin{tabular}{r | l}
+\texttt{d} & declare \\
+\texttt{w} & write \\
+\texttt{r} & read \\
+\texttt{_} & not used \\
+\texttt{*} & used or not used \\
+\end{tabular}
+
+Over these 64 cases, we identify 4 groups of cases leading to similar case of independence.
+In 43 cases, the name is not shared between the two application parts.
+For example, because the downstream application part over-declare the name, like in listing \ref{lst:overdeclare}.
+In 7 cases, the name is not written by the downstream part, like in listing \ref{lst:send}.
+It is possible to send the value from the upstream part, if the downstream part needs to read it.
+In 2 cases, the name is not read nor written by the upstream part, like in listing \ref{lst:store}.
+It is possible for the downstream part to keep this value in its scope.
+In 12 cases, the name is used by both application parts, like in listing \ref{lst:dependent}.
+The application parts are dependent.
+
+If a name is shared by more than two application parts, the same rules applies with upstream representing all the upstream application parts, and downstream is the last application part.
+Though, the same rules applies within the group of upstream application parts.
+If two downstream application parts are in two parallel streams, like in listing \ref{lst:dependent}, it is impossible for them to store the variable.
+Therefore, if one of the two downstream parts write on the variable, both are dependent of the upstream part.
+
+If, according to these rules, the application parts are not dependent for every of their shared names, they are independent.
+
+\begin{code}[js, %
+             caption={The downstream application part over-declare the variable}, %
+             label={lst:overdeclare}] %
+var app = require('express'),
+    my_var = "some_value";
+
+app.get('/'function(req, res){
+  var my_var = "some_value";
+  res.send(my_var);
+});
+
+app.listen(8080);
+\end{code}
+
+
+\begin{code}[js, %
+             caption={Only he downstream application part reads the variable}, %
+             label={lst:send}] %
+var app = require('express'),
+    my_var = "some_value";
+
+app.get('/'function(req, res){
+  res.send(my_var);
+});
+
+app.listen(8080);
+\end{code}
+
+\begin{code}[js, %
+             caption={The upstream application doesn't read nor write the variable}, %
+             label={lst:store}] %
+var app = require('express'),
+    my_var = 0;
+
+app.get('/'function(req, res){
+  my_var += req.some_param;
+  res.send(my_var);
+});
+
+app.listen(8080);
+\end{code}
+
+\begin{code}[js, %
+             caption={Two application parts write on the same variable}, %
+             label={lst:dependent}] %
+var app = require('express'),
+    my_var = 0;
+
+app.get('/A'function(req, res){
+  my_var += 1;
+  res.send(my_var);
+});
+
+app.get('/B'function(req, res){
+  my_var += 1;
+  res.send(my_var);
+});
+
+app.listen(8080);
+\end{code}
+
+\comment { 
+  J'ai lu la spécification, et elle indique clairement qu'il est possible d'écrire une variable, sans la lire.
+  Donc !(r < w).
+  Mais il est également possible de lire une variable sans l'écrire.
+  Donc également !(w < r)
+  En revanche, je suis d'accord avec toi pour deux autres cas.
+  Si on écris une variable sans la déclarer, elle sera automatiquement déclaré en global.
+  Donc w implique d.
+  Si on lis une variable qui n'a pas été déclaré auparavant, le programme envoie une except
+}
+
+
+
+
+
+\subsubsection{Object independence}
+
+Depending on the evaluation strategy, two application parts can share a same entity pointed by two different names in two disjoint scopes.
+There is two classes of evaluation strategies : eager or lazzy.
+Most imperative languages use an eager evaluation strategy.
+Languages in the class L1 use an eager evaluation strategy.
+There is three eager evaluation strategies : call-by-value, call-by-reference and call-by-sharing.
+
+Assuring the object independence of application part requires a deeper static analysis\cite{Cytron1991,Andersen1994,Abramsky1987,Cousot1977,Agesen1995,Ferrante1987,Horwitz1990,Logozzo2010,Rosen1988,Cousot1979,Gardner2012,Aiken1993,Aiken1991,Jensen2011,Jensen2012,Kam1977,Maffeis2008,Agesen1994,Richards2011,Anderson2005,Cytron1989,Jones2003,Thiemann2005,Tip1995,Sridharan2009,Agrawal1990,Alpern1988,Furr2009,Hackett2012,Jensen2009,Richards2010,Jang2009}.
+
+
+
+A scope is leaking a dynamic reference for these reasons :
+- directly passing a reference in arguments
+- passing in arguments a reference to an object containing other references
+- using a parent scope as a buffer between two siblings scopes.
+
+An application part breaks scopes, so to assure independence, we must assure that each identifier used is a) not an object, or b) safe, and that each function called is not causing side-effects not leaking references.
+
+The prototype inheritance also poses some problems.
+As well, 

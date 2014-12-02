@@ -1,0 +1,17 @@
+{
+  "name": "SimplePromise",
+  "version": "0.0.0",
+  "description": "Experiment on promises",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "author": "Etienne Brodu <etn@etnbrd.com> (http://etnbrd.com/)",
+  "license": "ISC",
+  "dependencies": {
+    "mocha": "^2.0.1"
+  }
+}
