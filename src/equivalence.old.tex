@@ -1,0 +1,211 @@
+\section{Equivalence}
+
+We present two equivalences to transform callbacks into promises in section \ref{section:general}, and \ref{section:sequence}.
+These equivalences are \textit{sound} because it encompass every possible case of argument for a callback.
+These equivalences are not easily readable for the same reason.
+A compiler would distinguish many different cases and adapt for each one a more precise, and readable, equivalence.
+We present section \ref{section:simple} such a more precise equivalence.
+In section \ref{section:more}, We present some hints to bring these equivalences further near human comprehension.
+
+The source must use libraries compatible with promises.
+So the functions using callback before compilation must returns a promise after compilation.
+\texttt{my_fn} in listing \ref{lst:my-fn} is a function both expecting a callback and returning a promise.
+There is no known libraries compatible with both callback and promises, like \texttt{my_fn}.
+However, there exist some libraries to trivially replace the use of callback for closures, like \textit{q-io}\footnote{\url{https://www.npmjs.org/package/q-io}}.
+We don't focus neither on the detection and replacement of these libraries, nor on the detection of their methods.
+
+\includecode{js, %
+             caption={Example of a function expecting a callback}, %
+             label={lst:my-fn}}{snippets/my-fn.js}
+
+\subsection{General equivalence} \label{section:general}
+
+The call to \texttt{my_fn} is a \textit{CallExpression}\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-expression-rules}}.
+Only be AssignementExpression can be argument of a CallExpression.
+Among the AssignementExpressions, all the expressions that possibly returns a callable object, \textit{i.e.} a function, or a method, are :
+\begin{itemize}
+\item Identifier
+\item FunctionExpression
+\item ArrowFunction
+\item YieldExpression
+\item CallExpression
+\item MemberExpression
+\item this
+\end{itemize}
+In the listings \ref{lst:cb-simple}, \ref{lst:pr-simple}, \ref{lst:cb-seq} and \ref{lst:pr-seq}, the identifier \texttt{callback} can be replaced with any of these expressions.
+
+During the transformation of the call from the listing \ref{lst:cb-simple} into the one in the listing \ref{lst:pr-simple}, there is several points to notice.
+In the listing \ref{lst:cb-simple}, the evaluation of \texttt{callback} is done after the evaluation of \texttt{arg}, but before the evaluation of \texttt{my_fn}.
+It is important to keep this evaluation order in the result to keep the semantic in every cases.
+We introduce a variable \texttt{__cb} to hold the original callback, and the function \texttt{__cb_def} to define \texttt{__cb} and evaluate \texttt{callback} in the original order.
+The function \texttt{__cb_def} returns \texttt{undefined} to keep the array of arguments passed to \texttt{my_fn} intact.
+After the call to \texttt{my_fn}, we append a call to \texttt{then} referring to the promise returned by \texttt{my_fn}.
+We populate its arguments with two functions, lines \ref{lst:pr-simple:onFulfill} and \ref{lst:pr-simple:onReject}, to call the callback in case of fulfillment, or rejection of the promise, lines \ref{lst:pr-simple:fulfill} and \ref{lst:pr-simple:reject}.
+The first function appends \texttt{null} to the arguments to fill the \texttt{error} parameter, as expected bu the callback.
+Both functions call the callback with the passed arguments, and returns the value returned by the callback.
+This returned value might be a promise.
+% We move the execution of \texttt{callback} from the arguments of \texttt{my_fn} to the arguments of \texttt{then}, lines \ref{lst:pr-simple:fulfill} and \ref{lst:pr-simple:reject}.
+
+\includecode{js, %
+             caption={A simple callback}, %
+             label={lst:cb-simple}
+             }
+             {snippets/cb-simple.js}
+
+\includecode{js, %
+             caption={Promise equivalence of a simple callback}, %
+             label={lst:pr-simple}
+             }
+             {snippets/pr-simple.js}
+
+\subsection{Simple equivalence} \label{section:simple}
+
+The two listings \ref{lst:cb-simple} and \ref{lst:pr-simple} are semantically equivalent in all cases.
+But as said earlier, the result looses readability.
+We present in listing \ref{lst:cb-exp} and \ref{lst:pr-exp} a more precise equivalence where the callback is a FunctionExpression.
+This more precise equivalence is slightly more readable than the more general one.
+However it keeps callback hell intact, and introduce code duplication.
+We address the callback hell in section \ref{section:sequence}, and code duplication in section \ref{section:duplication}.
+
+\includecode{js, %
+             caption={A FunctionExpression callback}, %
+             label={lst:cb-exp}
+             }
+             {snippets/cb-exp.js}
+
+\includecode{js, %
+             caption={Promise equivalence of a FunctionExpression callback}, %
+             label={lst:pr-somple}
+             }
+             {snippets/pr-exp.js}
+
+
+\subsection{Sequence equivalence} \label{section:sequence}
+
+To transform nested callbacks into sequential promises, we present the promise equivalence of two callback nested one into the other.
+The nested callback is translated into a second call to \texttt{then}, referring to the promise returned by the first call to \texttt{then}.
+If this callback is encapsulating another callback, this third callback would be translated into a third call to \texttt{then}, referring to the promise returned by the second call to \texttt{then}.
+And so on.
+If we can flatten two nested callbacks, then we can flatten \textit{n} nested callbacks.
+
+Listing \ref{lst:cb-seq} present two callback, \texttt{cb1} line \ref{lst:cb-seq:cb1} and \texttt{cb2} line \ref{lst:cb-seq:cb2}, nested into one another.
+We turned the variable \texttt{__cb} into an array to hold both callbacks.
+The callbacks are pushed after evaluation during the call to \texttt{__cb_def}, lines \ref{lst:pr-seq:cbdef1} and \ref{lst:pr-seq:cbdef2}.
+Before executing the callbacks, they are extracted from \texttt{__cb}.
+This transformation into array is \textit{sound} because
+\begin{itemize}
+\item the functions \texttt{onFulFill1} and \texttt{onReject1} from the first \texttt{then} are assured to execute before the functions \texttt{onFulFill2} and \texttt{onReject2} from the second \texttt{then}, so the callbacks are extracted in the correct order ;
+\item only one of the functions \texttt{onFulFill} and \texttt{onReject} is executed, so the callback are extracted once, and only once ; and
+\item those functions are defined in the same scope as \texttt{__cb}, a nested scope using the same variable name would hide the parent one, so it is impossible to conflict with another \texttt{__cb} from another similar transformation.
+\end{itemize}
+Line \ref{lst:pr-seq:retpr}, we make \texttt{cb1} returns the promise returned by the second call to \texttt{my_fn} line \ref{lst:pr-seq:cbdef2}.
+Line \ref{lst:pr-seq:fulfill1} or \ref{lst:pr-seq:reject1}, the functions \texttt{onFulfill1} or \texttt{onReject1} retrieves the promise returned by \texttt{cb1} and return it immediately.
+If more than two callback are nested, the variable \texttt{__promise} doesn't need to be turned into an array.
+Its definition, line \ref{lst:pr-seq:cbdef1}, and usage, line \ref{lst:pr-seq:retpr}, always happens synchronously.
+It could be defined directly inside \texttt{cb1}.
+
+\includecode{js, %
+             caption={A nested callback}, %
+             label={lst:cb-seq}
+             }
+             {snippets/cb-seq.js}
+
+\includecode{js, %
+             caption={Promise equivalence of a nested callback}, %
+             label={lst:pr-seq}
+             }
+             {snippets/pr-seq.js}
+
+The two listings \ref{lst:cb-seq} and \ref{lst:pr-seq} are not semantically equivalent in all cases.
+\begin{itemize}
+\item This equivalence is no longer \textit{sound} if the callback is not called asynchronously.
+Indeed, if \texttt{m_fn} is synchronous, its second call synchronously calls \texttt{cb2}.
+So, the callback in listing \ref{lst:cb-seq} executes between the execution of the two comments \circled{1} and \circled{2}.
+While the promise in listing \ref{lst:pr-seq} executes its callback after the two comments \circled{1} and \circled{2}.
+Synchronous functions must be detected and avoided to keep the soundness.
+\item This equivalence is no longer \textit{sound} if there is more than one callback nested inside another callback : sibling callbacks.
+It is impossible to return two promises, one for each callback.
+Say $A$ uses the callback $cbA$, and $B$ uses the callback $cbB$ ; $cbA$ and $cbB$ are siblings.
+It is different than $A$ and $B$, when both finished, calling both $cbA$ and $cbB$.
+This second case is the use case of the \texttt{all} method, addressed in section \ref{section:all-race}.
+Using this equivalence with two sibling callbacks breaks the semantic.
+To keep the soundness of this equivalence, sibling callbacks must remain siblings.
+\end{itemize}
+In this equivalence, the structure of callback calls is flattened, but the definition of callbacks are still overlapping.
+The callback hell remains, or we introduce code duplication, as explained in section \ref{section:simple}.
+The next section address the flattening of the callback definitions.
+
+\subsection{More equivalences} \label{section:more}
+
+As previously announced, these equivalences leave the callback hell intact, because they encompass all possible cases of callback.
+More precise equivalences are needed to both flatten the callback hell and avoid code duplication.
+
+\subsubsection{Callback to onFulfill and onReject} \label{section:duplication}
+
+The callback handles both \texttt{error} and \texttt{result}, while the \texttt{then} method expect one function for each.
+The compiler analyze and detect how the callback handles them to split it into the two functions to pass to the \texttt{then} method.
+The simplest case is a callback not handling errors at all.
+Like the conditional branch in listing \ref{lst:callback}.
+However, ignoring errors is a bad practice.
+Other examples are a conditional branch, like in listing \ref{lst:err-cond}, or an early return, like in listing \ref{lst:err-return}.
+
+\begin{code}[js, %
+             caption={A conditional switch to handle errors}, %
+             label={lst:err-cond}] %
+my_fn('<arg>', function callback(error, result) {
+  if (error) {
+    // handle the error ...
+  } else {
+    // do something with result ...
+  }
+})
+\end{code}
+
+\begin{code}[js, %
+             caption={An early return to handle errors}, %
+             label={lst:err-return}] %
+my_fn('<arg>', function callback(error, result) {
+  if (error) {
+    // handle the error ...
+
+    return
+  }
+  
+  // do something with result ...
+})
+\end{code}
+
+\subsubsection{all and race} \label{section:all-race}
+
+\paragraph{all}
+
+A callback might needs the completion of multiple operations to proceed.
+For example, to count the number of lines in a bunch of files, all files needs to be read.
+A simple way to do this is to use the same closure to count all the completed operations.
+The actual callback is called only when all operations completes.
+An example of this pattern is in listing \ref{lst:all}.
+It uses a variable \texttt{count}, line \ref{lst:all:after}, and increment it at each operation completion.
+It executes the callback only when the \textit{n} call to \texttt{my_fn} complete, line \ref{lst:all:callback}.
+This pattern is equivalent to the promise method \texttt{all}.
+
+\includecode{js, %
+             caption={Waiting for the completion of all operation before calling the callback}, %
+             label={lst:all}
+             }
+             {snippets/all.js}
+
+\paragraph{race}
+
+Sometimes, a callback needs the completion of at least one operation to proceed.
+For example, to display early result in a broad search.
+This is similar to the previous pattern.
+Instead of waiting for every operation completion, the closure executes the callback when first called.
+To be equivalent to the promise method \texttt{race}, this closure must block all future execution of callback.
+
+\includecode{js, %
+             caption={The first completed operation triggers the callback}, %
+             label={lst:race}
+             }
+             {snippets/race.js}
+
+% The complexity of such analyses would require probably more than syntactic equivalences to encompass all cases.

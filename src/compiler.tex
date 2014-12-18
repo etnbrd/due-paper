@@ -1,0 +1,77 @@
+\section{Compiler} \label{section:compiler}
+
+We explain in this section the compilation process.
+The compiler transform asynchronous call with continuation to make them compatible with due.
+This process flatten a continuation pyramid into a cascading sequence of call to \texttt{then}.
+There is roughly two steps in this process.
+The first, described in section \ref{section:compiler:chain}, is to build the chain of continuation from the continuations pyramids.
+The second, described in section \ref{section:compiler:chain}, is to extract the shared identifiers to move them in a parent scope.
+
+As stated earlier, the compiler doesn't detect rupture points.
+It expects a list of previously detected rupture points.
+In the prototype, we spot the rupture point by hand.
+In section \ref{section:compiler:lib-compilation}, we present some thoughts about automation solutions.
+
+\subsection{Build continuation chains} \label{section:compiler:chain}
+
+% As explained in section \ref{section:definitions}, the cascade of Due is possible because the method \texttt{then} returns a due which resolve when the promise returned by its callback resolves.
+% As continuations are directly called from the event-loop, their return values are discarded.
+% The return statement in a continuation is only to control the execution flow - early return - not the data flow - return a value.
+% We can modify a continuation to make it return a Due while keeping the semantic.
+
+The first step is to build arrange the rupture points in chain.
+These chains are branches of trees of rupture points.
+
+A tree of rupture points represent the hierarchy of the rupture points in the source code.
+To form this tree, there is only one constraint : a child rupture point cannot be separated from its parent by a function.
+This is because this middle function is not assured to be executed only once, or synchronously.
+If this middle function is used as an iterator or a listener, there would be multiple child Dues to return, while only one is expected by the parent callback.
+If this middle function is used as a continuation, the due returned by the child rupture point would net be available synchronously to be returned by the parent callback.
+For example this middle function might be defined in the parent, but used in a different part of the program.
+
+At the end of this first process, we have multiple trees containing the hierarchy of all the rupture points in the application.
+Because a function can only return one Due, it is not possible to flatten a tree of rupture points, only a chain.
+As a callback cannot return more than one Due, it is not possible to build a sequence of Due from a tree.
+The next step of the compilation is to trim the trees to obtain chains of callbacks transformable into sequence of Due.
+
+Each tree is walked to find rupture point with more than one child.
+If there is more than one child, we try to find a legitimate child to continue the chain.
+A legitimate child is a child with at least one child.
+If there is more than one legitimate child, all are discarded, they all start new chains.
+The non legitimate child start a new tree to walk the same way.
+
+The result is a list of chains of rupture points.
+Each chain is assured to be transformable into a sequence of \texttt{then} calls.
+However, as stated earlier, this transformation modifies the scopes organization.
+To keep the semantic intact, we need to modify the source code in some way that allow the flattening modification to keep the semantic intact.
+
+
+\subsection{Identifier extraction} \label{section:compiler:extraction}
+
+To keep the semantic intact after the flattening of rupture points, no identifier must be shared between two callbacks.
+Every declaration of shared identifiers is extracted in a parent scope.
+
+We iterate over the rupture point in a chain.
+If there is any reference to a variable in the children rupture points, then this variable is marked as shared.
+If the rupture point is not a parent, the descendants scope are not modified by the flattening process.
+
+All shared variables are extracted from their current scope, and placed in the scope at the root of the chain so to be shared by all callbacks in the chain.
+If there is a conflict with another variable in this root scope, it is necessary to rename one of these variables.
+
+
+
+\subsection{Crowd sourced compilation} \label{section:compiler:lib-compilation}
+
+Spotting rupture points is equivalent to spotting continuation from other callbacks.
+A continuation is defined only by its invocation.
+Spotting a continuation means identifying the function called with the continuation as argument.
+Function, in Javascript, are first-class citizen, they can take many forms.
+Statically identifying a function expecting a continuation implies the compiler to have a very deep understanding of the program.
+This understanding comes from certain static analyses which don't guarantee a good enough result.
+
+If it is not possible to automate the screening process at an individual scale, it might be possible to automate it at a global scale.
+Most rupture point calls are expected to have distinct names, \textit{e.g.} \texttt{fs.readFile}.
+In future works, we would like to study the possibility to harvest the result of every compilation to build a list of common rupture points.
+With this list, it would be possible to approximate this automation to ease the compilation interaction.
+
+% Also, safe check : warn the user when a callback is called synchronously while it shouldn't.

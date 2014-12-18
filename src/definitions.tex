@@ -1,0 +1,186 @@
+\section{Definitions} \label{section:definitions}
+
+\subsection{Callbacks} \label{section:definitions:callback}
+
+A callback is a function passed as an argument to another function to defer its execution after a result is made available.
+We distinguish three kinds of callbacks.
+\begin{itemize}
+  \item An \textbf{Iterator} is a function called for each item in a set.
+  In \textit{node.js}, the methods of the Array prototype expect iterators, \textit{e.g.} \texttt{forEach}, \texttt{map}, \texttt{map}.
+  An iterator is often called synchronously.
+  \item A \textbf{Listener} is a function called for each message in a stream.
+  A listener is called asynchronously, when a new message in the stream is available.
+  \item A \textbf{Continuation} is a function called asynchronously once a unique result is available.
+  Callbacks are often mistaken for continuations.
+  We only focus on continuation in this paper, because promises can replace only continuations.
+\end{itemize}
+
+In \textit{Node.js}, the signature of a continuation uses the convention \textit{error-first}\footnote{\label{ftn:error-first}\url{https://docs.nodejitsu.com/articles/errors/what-are-the-error-conventions}}\footnote{\url{http://programmers.stackexchange.com/questions/144089/different-callbacks-for-error-or-error-as-first-argument}}.
+The first argument contains an error or \texttt{null} if no error occurred ; then follows the result.
+Listing \ref{lst:continuation} is an example of continuation.
+The \texttt{my_fn} function is defined in listing \ref{lst:my-fn}.
+
+\begin{code}[js, %
+             caption={Example of a continuation}, %
+             label={lst:continuation}] %
+my_fn(<arg>, function continuation(error, result) {
+  if (!error) {
+    // do something with result ...
+  }
+});
+\end{code}
+
+The continuation allows to continue the execution sequentially, after the result of \textit{my_fn} is available. 
+When continuations are defined inside the call, like \textit{continuation}, the sequence of deferred execution results in an intricate imbrication of calls and continuations, like in listing \ref{lst:cbhell}.
+Promise allows to arrange a sequence of deferred execution in a more readable way.
+
+\begin{code}[js, %
+             caption={Example of a cascade of continuations}, %
+             label={lst:cbhell}] %
+my_fn_1(<arg>, function continuation(error, result) {
+  if (!error) {
+    my_fn_2(<arg>, function continuation(error, result) {
+      if (!error) {
+        my_fn_3(<arg>, function continuation(error, result) {
+          if (!error) {
+            // do something with result ...
+          }
+        });
+      }
+    });
+  }
+});
+\end{code}
+
+\subsection{Promise} \label{section:definitions:promise}
+
+% TODO insert these :
+% Promise also provide few methods to enhance the asynchronous control flow tools\footnote{\texttt{all} and \texttt{race}}.
+% There is, in Javascript, numerous Promise implementations\footnote{37 different implementations in Javascript \url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
+
+This section is based on the Promises section of the specification in ECMAScript 6 Harmony\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects}} and the Promises page on the Mozilla Developer Network\footnote{\url{https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise}}.
+The specification defines a promise as \textit{an object that is used as a placeholder for the eventual results of a deferred (and possibly asynchronous) computation.}
+
+A promise is an object returned by a function to represent its result.
+Because it is possibly unavailable synchronously, it still requires a callback to defer the execution when the result is made available.
+A promise also require another callback to defer the execution in case of errors.
+This two callbacks are passed to the method \texttt{then} of the promise, like illustrated in listing \ref{lst:then}.
+
+\begin{code}[js, %
+             caption={Example of a promise}, %
+             label={lst:then}] %
+var promise = my_fn(<arg>)
+
+promise.then(function onSuccess(result) {
+  // do something with result ...
+}, function onErrors(reason) {
+  // do something with the reason of the error ...
+});
+\end{code}
+
+To allow cascading, the method \texttt{then} returns a promise which resolve when the promise returned by its callbacks resolve.
+This is illustrated in listing \ref{lst:promises-cascade}.
+The two first \texttt{onSuccess} callbacks call \texttt{my\_fn\_2} and \texttt{my\_fn\_3}, return the promises \texttt{p2} and \texttt{p4}.
+The promises \texttt{p3} and \texttt{p5}, returned by the \texttt{then} calls to \texttt{p1} and \texttt{p3}, resolve respectively when \texttt{p2} and \texttt{p4} resolve.
+This behavior allow to arrange the callback in a flat cascade of calls, instead of an imbrication of calls and callback.
+
+\begin{code}[js, %
+             caption={Example of a promise}, %
+             label={lst:promises-cascade}] %
+var p1 = my_fn_1(<arg>)
+
+var p3 = p1.then(function onSuccess(result) {
+  var p2 = my_fn_2(<arg>);
+  return p2;
+}, onErrors)
+
+var p5 = p2.then(function onSuccess(result) {
+  var p4 = my_fn_3(<arg);
+  return p4;
+}, onErrors)
+
+p5.then(function onSuccess(result) {
+  // do something with result ...
+}, onErrors);
+
+function onErrors(reason) {
+  // do something with the reason of the error ...
+}
+\end{code}
+
+% \subsubsection{Specification}
+
+% At its creation, the promise expects a callback containing the deferred computation.
+% This callback is called with two functions as arguments, \texttt{resolve} to fulfill, and \texttt{reject} to reject the promise after the computation.
+% % \textbf{$\warning$} The function \texttt{resolve} does \textbf{not} resolve the promise, it fulfills it.
+% After its creation, the promise exposes a \texttt{then} method expecting a callback to continue the execution after the deferred computation.
+
+% Any Promise object is in one of three mutually exclusive states: fulfilled, rejected, and pending.
+
+% A promise \texttt{p} is fulfilled when the function \texttt{resolve} is called.
+% A call to \texttt{p.then(onFulfill, onReject)} immediately call the function \texttt{onFulfill}.
+% A promise \texttt{p} is rejected when the function \texttt{reject} is called.
+% A call to \texttt{p.then(onFulfill, onReject)} immediately call the function \texttt{onReject}.
+% A promise is pending if it is neither fulfilled nor rejected.
+% A promise is settled if it is not pending, \textit{i.e.} if it is either fulfilled or rejected.
+% A promise is resolved if it is settled or if it has been locked in to match the state of another promise.
+% Attempting to resolve or reject a resolved promise has no effect.
+% A promise is unresolved if it is not resolved.
+% An unresolved promise is always in the pending state.
+% A resolved promise may be pending, fulfilled or rejected.
+
+% The \texttt{Promise} object exposes these methods :
+% \begin{description}
+% \item[\texttt{Promise.all(iterable)}] Returns a promise that resolves when all of the promises in the iterable argument have resolved.
+% \item[\texttt{Promise.prototype.catch(onRejected)}] Appends a rejection handler callback to the promise, and returns a new promise resolving to the return value of the callback if it is called, or to its original fulfillment value if the promise is instead fulfilled.
+% \item[\texttt{Promise.prototype.then(onFulfilled, onRejected)}]~\\ Appends fulfillment and rejection handlers to the promise, and returns a new promise resolving to the return value of the called handler. 
+% \item[\texttt{Promise.race(iterable)}] Returns a promise that resolves or rejects as soon as one of the promises in the iterable resolves or rejects, with the value or reason from that promise.
+% \item[\texttt{Promise.reject(reason)}] Returns a Promise object that is rejected with the given reason.
+% \item[\texttt{Promise.resolve(value)}] Returns a Promise object that is resolved with the given value.
+% If the value is a \textit{thenable}, \textit{i.e.} has a method \texttt{then}, the returned promise will follow that \textit{thenable}, adopting its eventual state; otherwise the returned promise will be fulfilled with the value.
+% \end{description}
+
+% We present in section \ref{section:spimpl} a simple implementation of Promise in Javascript.
+% We only implement \texttt{then}, \texttt{resolve} and \texttt{reject} to keep the implementation concise.
+%  % as they are the only methods we use for this equivalence.
+% The method \texttt{catch} is redundant with the method \texttt{then}.
+% The implementation for the methods \texttt{all} and \texttt{race} are out of scope in this paper.
+% However, we present equivalences for both in section \ref{section:all-race}.
+
+
+\subsection{Dues} \label{section:definitions:due}
+
+We present a simpler alternative to promises in Javascript called \textit{Due}.
+A due is an object that is used as a placeholder for the eventual results of a deferred computation.
+The method \texttt{then} of a due expects only one callback, following the convention \textit{error-first}, like in \textit{Node.js}.%\footnotemark[\ref{ftn:error-first}].
+While the method \texttt{then} of a promise expects two callbacks, \texttt{onSuccess} and \texttt{onErrors}. 
+
+Any Due object is in one of two mutually exclusive states: settled or pending.
+At its creation, the due expects a callback containing the deferred computation.
+This callback is called with the function \texttt{settle} as argument, to settle the due.
+After its creation, the due exposes a \texttt{then} method expecting a callback to continue the execution after the deferred computation.
+Similarly to Promise, to allow cascading, the method \texttt{then} returns a Due which resolve when the due returned by its callbacks resolve.
+
+\begin{code}[js, %
+             caption={Example of a due}, %
+             label={lst:then}] %
+var due = my_fn(<arg>)
+
+due.then(function callback(error, result) {
+  if (!error) {
+    // do something with result ...
+  }
+});
+\end{code}
+
+A due \texttt{due} is settled when the function \texttt{settle} is called.
+If \texttt{due} is settled, a call to \texttt{due.then(onSettlement)} immediately call the function \texttt{onSettlement}.
+A due is pending if it is not settled.
+A due is resolved if it is settled or if it has been locked in to match the state of another due.
+Attempting to settle a resolved due has no effect.
+A resolved due may be pending or settled, while an unresolved due is always in the pending state.
+The \texttt{Due} object only exposes the \texttt{then} method.
+% \textbf{\texttt{Due.prototype.then(onSettlement)}}\\
+% Appends settlement handlers to the due, and returns a new due resolving to the return value of the called handler.
+% If the value is a \textit{thenable}, \textit{i.e.} has a method \texttt{then}, the returned due will follow that \textit{thenable}, adopting its eventual state; otherwise the returned due will be fulfilled with the value.
+We present in section \ref{section:dueimpl} a simple implementation of Due in Javascript.

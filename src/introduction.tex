@@ -21,37 +21,37 @@
   \end{center}
 }
 
-\section{Introduction}
+The world wide web started as a document sharing platform for academics.
+It is now pervasive, and accessible almost everywhere.
+It becames a rich application platform\footnote{Firefox OS, Chrome OS and many other mobile OSs use web sites as applications \url{https://www.mozilla.org/en-US/firefox/os/}}.
+This transformation began with the introduction in Netscape 2.0 of Javascript, a web scripting language.
+This language is now used to build both client\footnote{The Gmail client is build in Javascript} and server applications.
 
-For the record, the proliferation of promises/deferred implementation :
-- iou
-- voucher
-- pact
-- vow
-- js-commitment
-- pledge-js
+Web-based application are connected to multiple ressources, \textit{e.g.} sockets, graphical interfaces, file systems.
+To avoid blocking the other ressources while waiting for one, executions are deferred in the future to meet ressource availabilities.
+The implementation of this solution is called an event-loop.
+It allows to efficiently cope with the distributed and inherently asynchronous architecture of the internet.
+Javascript is not event-based or asynchronous, but it is functional.
+Because functions are first class citizen, it allows to pass functions to defer their execution.
+This makes Javascript a language of choice to implement an event-loop\footnote{Its main implementations, \textit{DOM} and \textit{Node.js} are event-based. However, \textit{Rhino} is not}.
 
-Why javascript is a success ?
--> success of the web
-
-Why do we need asynchronism ?
--> event-loop and stuffs are better at scalability
--> web is very low latency, synchronism is not efficient
-
-Why do we need to sugar syntax asynchronism ?
--> we are used to synchronism, asynchronism is like brain rape for most.
-
-Callbacks and promises are two different tools to arrange the flow of deferred operations, possibly asynchronously.
-Callbacks implies the inversion of the control.
+In these implementations, a deferred execution is called a \textit{callback}.
+It modifies the arrangement of sequential execution.
+Two sequential instructions, one after the other in the source, are executed in parallel, not in sequence.
+To execute instructions in sequence, the first instruction needs to embed the next in a callback.
 It often result in an intricate imbrication of function definitions and calls, called the callback hell, or the pyramid of doom\footnote{\raggedright http://maxogden.github.io/callback-hell/}.
-Too much impribrated callback is largely considered a bad practice.
-Promises are an alternative to avoid this imbrication.
-It allows to replace the overlapping callbacks by a cascading\footnote{\url{http://stackoverflow.com/questions/758486/how-to-implement-javascript-cascades}} sequence of call.
-This paper presents an equivalence to transform callbacks into Promises.
-To do so, we define a simpler alternative to Promise, called Vow.
-We present an equivalence to transform callbacks to Vows, and then an equivalence to transform Vows into Promises.
-We intend to transform the callback hell into a flatten sequence of promises.
+This is largely considered a bad practice.
 
-Why Node.js ?
--> we target server side code ?
--> callback hell very present because code base are sometime heavy ?
+Promise is an alternative to avoid this imbrication.
+It allows to replace the overlapping callbacks by a cascading\footnote{\url{http://stackoverflow.com/questions/758486/how-to-implement-javascript-cascades}} sequence of call.
+
+In this paper, we focus on the transformation from an imbrication to a sequence of call, and the consequences of this transformation.
+In section \ref{section:definitions} we define callback and Promise.
+We then introduce a new specification, called Due, essentially similar to Promise.
+In section \ref{section:equivalences}, we explain the transformation from imbrication to sequence.
+In section \ref{section:compiler}, we present an implementation of this transformation.
+\comment{then comes related works, and finally conclusion} 
+
+% Why Node.js ?
+% -> we target server side code ?
+% -> callback hell very present because code base are sometime heavy ?

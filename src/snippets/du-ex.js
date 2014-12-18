@@ -3,6 +3,6 @@ var my_fn = require('./my_fn').async;
 var arg = '1';
 
 my_fn(arg)
-.then(function callback(err, res) {
+.then(function continuation(err, res) {
   console.log(res);
 });

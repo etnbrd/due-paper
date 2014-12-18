@@ -1,211 +1,175 @@
-\section{Equivalence}
+\section{Equivalences} \label{section:equivalences}
 
-We present two equivalences to transform callbacks into promises in section \ref{section:general}, and \ref{section:sequence}.
-These equivalences are \textit{sound} because it encompass every possible case of argument for a callback.
-These equivalences are not easily readable for the same reason.
-A compiler would distinguish many different cases and adapt for each one a more precise, and readable, equivalence.
-We present section \ref{section:simple} such a more precise equivalence.
-In section \ref{section:more}, We present some hints to bring these equivalences further near human comprehension.
+We present two examples of source code manipulation to transform continuation into Dues.
+The first manipulation is the simplest one.
+It transforms a unique continuation into a Due.
+The second manipulation is the composition of the first manipulation.
+It transforms multiple continuations with overlapping definitions into a sequence of Dues.
+This second manipulation requires to move the continuation definitions.
+This modifies the semantic.
+We finally present a static lexical analysis to modify the source code before the manipulation to avoid the semantic modification.
 
-The source must use libraries compatible with promises.
-So the functions using callback before compilation must returns a promise after compilation.
-\texttt{my_fn} in listing \ref{lst:my-fn} is a function both expecting a callback and returning a promise.
-There is no known libraries compatible with both callback and promises, like \texttt{my_fn}.
-However, there exist some libraries to trivially replace the use of callback for closures, like \textit{q-io}\footnote{\url{https://www.npmjs.org/package/q-io}}.
-We don't focus neither on the detection and replacement of these libraries, nor on the detection of their methods.
+The main advantage for developers using Dues, is to flatten the overlapping continuations into a more readable sequence of functions.
+The pyramid of continuations only occurs when they are defined by \textit{FunctionExpressions}\footnote{\url{http://www.ecma-international.org/ecma-262/5.1/\#sec-11.2.5}}.
+When the continuation is not declared \textit{in situ}, it avoids the imbrication of function declarations and calls.
+So, we focus only on the modification of continuation declared \textit{in situ}.
+% This equivalence would not improve readability.
+% Moreover, it would require heavier manipulation of the source code, as explained in section \ref{section:equivaences:general}.
+
+This transformation modifies the syntax of the call.
+The function called needs to be modified to fit this new syntax, it must return a Due.
+\texttt{my_fn} in listing \ref{lst:my-fn} is a function both expecting a callback and returning a Due.
+There is no libraries compatible with both callback and Due, like \texttt{my_fn}.
+However, the Due library provide a function \texttt{mock} to transform a function expecting continuation into a function returning a Due.
+We don't focus neither on the replacement of these libraries, nor on the detection of their methods in the source code.
+We expect the continuation to be already screened out from other callbacks, either by a developer, or by another automated tool.
+We address this problem in section \label{section:compiler:lib-compilation}.
 
 \includecode{js, %
-             caption={Example of a function expecting a callback}, %
+             caption={Example of two function expecting a callback, and returning a promise, one synchronous the other asynchronous.}, %
              label={lst:my-fn}}{snippets/my-fn.js}
 
-\subsection{General equivalence} \label{section:general}
+\subsection{Simple equivalence} \label{section:equivalences:general}
 
-The call to \texttt{my_fn} is a \textit{CallExpression}\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-expression-rules}}.
-Only be AssignementExpression can be argument of a CallExpression.
-Among the AssignementExpressions, all the expressions that possibly returns a callable object, \textit{i.e.} a function, or a method, are :
+As explained in section \ref{section:definitions:callback}, a continuation is a function passed as argument to defer its execution, like in listing \ref{lst:ct-ex}.
+As explained in section \ref{section:definitions:due}, a Due is an object to defer a computation, and exposes a method \texttt{then} to continue the execution after the deferred computation, like in listing \ref{lst:du-ex}.
+The difference between the listings \ref{lst:ct-ex} and \ref{lst:du-ex}, is mainly syntactical.
+The transformation is immediate, and trivial.
+As illustrated in listing \ref{lst:my-fn}, \texttt{my_fn} both accepts a callback and returns a Due.
+The manipulation consist of calling the method \texttt{then} of the Due returned by \texttt{my_fn}, and moving \texttt{continuation} to the arguments of this new call.
+In Javascript, when entering a scope, declaration of variables and functions are processed before any execution.
+Declaring an identifier anywhere in a scope is equivalent to declaring it at the top.
+The identifier \texttt{continuation}, is declared before the call to \texttt{my_fn} in both listings \ref{lst:ct-ex} and \ref{lst:du-ex}.
+This behavior is called \textit{hoisting}.
+It makes this manipulation \textit{sound}.
+The manipulation conserves the semantic for \textit{FunctionExpression} like \texttt{continuation}.
+
+For other types of continuations, \textit{e.g.} an expression returning a function, this manipulation modifies the execution order.
+Before the manipulation, the expression evaluation would occur \textbf{before} the call to \texttt{my_fn}.
+While, after the manipulation, the expression evaluation would occur \textbf{after} the call to \texttt{my_fn}.
+If the expression evaluation produces expected side-effects, the manipulation would prevent them from happening before the call to \texttt{my_fn}.
+The manipulation is \textit{sound} only when manipulating \textit{FunctionExpression}.
+
+\includecode{js, %
+             caption={A simple continuation}, %
+             label={lst:ct-ex}
+             }
+             {snippets/ct-ex.js}
+
+\includecode{js, %
+             caption={A simple Due is very similar to a simple continuation}, %
+             label={lst:du-ex}
+             }
+             {snippets/du-ex.js}
+
+\subsection{Overlapping continuations} \label{section:overlapping-continuations}
+
+The previous manipulation allows the modification of only one continuation.
+To transform an overlapping pyramid of continuation into a sequence of Dues, we need to assure the composition of this simple transformation.
+An example of overlapping pyramid of continuation is illustrated in listing \ref{lst:ct-seq}.
+The expected composition manipulation is illustrated in listing \ref{lst:du-seq}.
+In listing \ref{lst:ct-seq}, the two continuations definition, \texttt{ct1} line \ref{lst:ct-seq:ct1} and \texttt{ct2} line \ref{lst:ct-seq:ct2}, are overlapping.
+While, in listing \ref{lst:du-seq}, they are not overlapping, they are defined sequentially, one after the other.
+The transformation between \ref{lst:ct-seq} and \ref{lst:du-seq} is similar to the previous example, only two more transformations are required.
+To link the sequence of execution, the \texttt{cb1} must \textit{a)} retrieves the Due returned by the second call to \texttt{my_fn}, line \ref{lst:du-seq:cbdef2}, and \textit{b)} return it, line \ref{lst:du-seq:ret}.
+
+The composition of the simpler manipulation leads to two semantical differences between listing \ref{lst:ct-seq} and \ref{lst:du-seq}.
+Moving the definition of \texttt{ct2} is not \textit{sound}.
 \begin{itemize}
-\item Identifier
-\item FunctionExpression
-\item ArrowFunction
-\item YieldExpression
-\item CallExpression
-\item MemberExpression
-\item this
+\item In listing \ref{lst:ct-seq}, if \texttt{my\_fn} calls \texttt{ct2} synchronously, its execution occurs before \circled{2}, line \ref{lst:ct-seq:cm2}.
+While in listing \ref{lst:du-seq}, whether the Due returned by \texttt{my\_fn} settles synchronously or not, the execution of \texttt{ct2} occurs after \circled{2}, line \ref{lst:du-seq:cm2}
+To keep the semantic intact, the manipulation is practicable only on asynchronous functions.
+We need to assure the asynchronism of \texttt{my\_fn}.
+\item In listing \ref{lst:ct-seq}, because the definitions of \texttt{ct1} and \texttt{ct2} are overlapping, their environment record, commonly called scope, are also overlapping.
+The function \texttt{ct1} shares its identifiers with \texttt{ct2}.
+While in listing \ref{lst:du-seq}, the definitions of \texttt{ct1} and \texttt{ct2} are siblings, so \texttt{ct1} and \texttt{ct2} have their environment records disjoints.
+If \texttt{ct2} uses identifiers defined in \texttt{ct1}, the manipulation makes them inaccessible.
+To keep the semantic intact, we need to analyze the environment records to assure their disjunction before the manipulation. 
+We address this issue in section \ref{section:disjunction}.
 \end{itemize}
-In the listings \ref{lst:cb-simple}, \ref{lst:pr-simple}, \ref{lst:cb-seq} and \ref{lst:pr-seq}, the identifier \texttt{callback} can be replaced with any of these expressions.
-
-During the transformation of the call from the listing \ref{lst:cb-simple} into the one in the listing \ref{lst:pr-simple}, there is several points to notice.
-In the listing \ref{lst:cb-simple}, the evaluation of \texttt{callback} is done after the evaluation of \texttt{arg}, but before the evaluation of \texttt{my_fn}.
-It is important to keep this evaluation order in the result to keep the semantic in every cases.
-We introduce a variable \texttt{__cb} to hold the original callback, and the function \texttt{__cb_def} to define \texttt{__cb} and evaluate \texttt{callback} in the original order.
-The function \texttt{__cb_def} returns \texttt{undefined} to keep the array of arguments passed to \texttt{my_fn} intact.
-After the call to \texttt{my_fn}, we append a call to \texttt{then} referring to the promise returned by \texttt{my_fn}.
-We populate its arguments with two functions, lines \ref{lst:pr-simple:onFulfill} and \ref{lst:pr-simple:onReject}, to call the callback in case of fulfillment, or rejection of the promise, lines \ref{lst:pr-simple:fulfill} and \ref{lst:pr-simple:reject}.
-The first function appends \texttt{null} to the arguments to fill the \texttt{error} parameter, as expected bu the callback.
-Both functions call the callback with the passed arguments, and returns the value returned by the callback.
-This returned value might be a promise.
-% We move the execution of \texttt{callback} from the arguments of \texttt{my_fn} to the arguments of \texttt{then}, lines \ref{lst:pr-simple:fulfill} and \ref{lst:pr-simple:reject}.
 
 \includecode{js, %
-             caption={A simple callback}, %
-             label={lst:cb-simple}
+             caption={Overlapping continuations definitions}, %
+             label={lst:ct-seq}
              }
-             {snippets/cb-simple.js}
+             {snippets/ct-seq.js}
 
 \includecode{js, %
-             caption={Promise equivalence of a simple callback}, %
-             label={lst:pr-simple}
+             caption={Sequential continuations definitions using Dues}, %
+             label={lst:du-seq}
              }
-             {snippets/pr-simple.js}
+             {snippets/du-seq.js}
 
-\subsection{Simple equivalence} \label{section:simple}
+\subsection{Assure environment record disjunction} \label{section:disjunction}
 
-The two listings \ref{lst:cb-simple} and \ref{lst:pr-simple} are semantically equivalent in all cases.
-But as said earlier, the result looses readability.
-We present in listing \ref{lst:cb-exp} and \ref{lst:pr-exp} a more precise equivalence where the callback is a FunctionExpression.
-This more precise equivalence is slightly more readable than the more general one.
-However it keeps callback hell intact, and introduce code duplication.
-We address the callback hell in section \ref{section:sequence}, and code duplication in section \ref{section:duplication}.
+In Javascript, a function defines a Lexical Environment\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-lexical-environments}}.
+A lexical environment consists of an environment record and a possibly null reference to an outer environment.
+An Environment Record records the identifier bindings that are created within the scope of its associated Lexical Environment.
+Javascript exposes two built-in functions that dynamically modify lexical environment : \texttt{eval} and \texttt{with}.
+We consider a subset of Javascript, excluding \texttt{eval} and \texttt{with}.
 
-\includecode{js, %
-             caption={A FunctionExpression callback}, %
-             label={lst:cb-exp}
-             }
-             {snippets/cb-exp.js}
+This subset is lexically scoped at the function level.
+A Lexical Environment is static, it is immutable during run time.
+So it is possible to infer the identifiers and their scopes before run time.
+The scope of an identifier is limited to the defining function and its children.
+To assure the disjunction of two Environment records, we avoid dynamical modifications by excluding programs using these functions.
 
-\includecode{js, %
-             caption={Promise equivalence of a FunctionExpression callback}, %
-             label={lst:pr-somple}
-             }
-             {snippets/pr-exp.js}
+In listing \ref{lst:ct-seq}, the environment records of \texttt{ct1} and \texttt{ct2} are overlapping.
+The identifier \texttt{shared_identifier} declared line \ref{lst:ct-seq:shared-identifier}, is accessible from \texttt{ct2}.
+However, in listing \ref{lst:vo-seq}, the Environment Records of \texttt{ct1} and \texttt{ct2} are siblings.
+The identifiers declared in \texttt{ct1} are no longer accessible from \texttt{ct2}.
+To move the child Environment Records out of its parent while keeping the semantic, it needs to be disjoint from its parent.
+Two environment records are disjoints if they don't share any identifiers.
+Two environment records are joints if they share at least one identifier.
+A shared identifier is replaceable by an identifier declared in the parent outer environment record to be accessible by both the parent and the child.
+The identifier \texttt{shared_identifier} is moved to the outer environment, shared by both \texttt{ct1} and \texttt{ct2}.
+In listings \ref{lst:ct-seq} and \ref{lst:vo-seq} this outer environment is the global environment records.
+
+As assured in section \ref{seciton:overlapping-callbacks}, the deferred computation is asynchronous.
+And the execution flow is not modified by the manipulation.
+The function \texttt{ct2} is executed after the function \texttt{ct2}, and they share the same environment record.
+So all type of accesses are equivalents : writing or reading.
+The type of access required by \texttt{ct1} and \texttt{ct2} is insignificant for this manipulation.
 
 
-\subsection{Sequence equivalence} \label{section:sequence}
 
-To transform nested callbacks into sequential promises, we present the promise equivalence of two callback nested one into the other.
-The nested callback is translated into a second call to \texttt{then}, referring to the promise returned by the first call to \texttt{then}.
-If this callback is encapsulating another callback, this third callback would be translated into a third call to \texttt{then}, referring to the promise returned by the second call to \texttt{then}.
-And so on.
-If we can flatten two nested callbacks, then we can flatten \textit{n} nested callbacks.
+% \subsection{Soundness and Completeness} \label{section:soundness-completeness}
 
-Listing \ref{lst:cb-seq} present two callback, \texttt{cb1} line \ref{lst:cb-seq:cb1} and \texttt{cb2} line \ref{lst:cb-seq:cb2}, nested into one another.
-We turned the variable \texttt{__cb} into an array to hold both callbacks.
-The callbacks are pushed after evaluation during the call to \texttt{__cb_def}, lines \ref{lst:pr-seq:cbdef1} and \ref{lst:pr-seq:cbdef2}.
-Before executing the callbacks, they are extracted from \texttt{__cb}.
-This transformation into array is \textit{sound} because
-\begin{itemize}
-\item the functions \texttt{onFulFill1} and \texttt{onReject1} from the first \texttt{then} are assured to execute before the functions \texttt{onFulFill2} and \texttt{onReject2} from the second \texttt{then}, so the callbacks are extracted in the correct order ;
-\item only one of the functions \texttt{onFulFill} and \texttt{onReject} is executed, so the callback are extracted once, and only once ; and
-\item those functions are defined in the same scope as \texttt{__cb}, a nested scope using the same variable name would hide the parent one, so it is impossible to conflict with another \texttt{__cb} from another similar transformation.
-\end{itemize}
-Line \ref{lst:pr-seq:retpr}, we make \texttt{cb1} returns the promise returned by the second call to \texttt{my_fn} line \ref{lst:pr-seq:cbdef2}.
-Line \ref{lst:pr-seq:fulfill1} or \ref{lst:pr-seq:reject1}, the functions \texttt{onFulfill1} or \texttt{onReject1} retrieves the promise returned by \texttt{cb1} and return it immediately.
-If more than two callback are nested, the variable \texttt{__promise} doesn't need to be turned into an array.
-Its definition, line \ref{lst:pr-seq:cbdef1}, and usage, line \ref{lst:pr-seq:retpr}, always happens synchronously.
-It could be defined directly inside \texttt{cb1}.
+% \TODO{TODO prove soundness and completeness with the following}
+% The call to \texttt{my_fn} is a \textit{CallExpression}\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-expression-rules}}.
+% The arguments of a CallExpression are only AssignementExpression.
+% The AssignementExpression that possibly returns a callable object, \textit{i.e.} a function, or a method, are :
+% \begin{itemize}
+% \item Identifier
+% \item FunctionExpression
+% \item ArrowFunction
+% \item YieldExpression
+% \item CallExpression
+% \item MemberExpression
+% \item this
+% \end{itemize}
+% In the listings \ref{lst:cb-simple}, \ref{lst:pr-simple}, \ref{lst:ct-seq} and \ref{lst:pr-seq}, the identifier \texttt{callback} can be replaced with any of these expressions.
 
-\includecode{js, %
-             caption={A nested callback}, %
-             label={lst:cb-seq}
-             }
-             {snippets/cb-seq.js}
 
-\includecode{js, %
-             caption={Promise equivalence of a nested callback}, %
-             label={lst:pr-seq}
-             }
-             {snippets/pr-seq.js}
 
-The two listings \ref{lst:cb-seq} and \ref{lst:pr-seq} are not semantically equivalent in all cases.
-\begin{itemize}
-\item This equivalence is no longer \textit{sound} if the callback is not called asynchronously.
-Indeed, if \texttt{m_fn} is synchronous, its second call synchronously calls \texttt{cb2}.
-So, the callback in listing \ref{lst:cb-seq} executes between the execution of the two comments \circled{1} and \circled{2}.
-While the promise in listing \ref{lst:pr-seq} executes its callback after the two comments \circled{1} and \circled{2}.
-Synchronous functions must be detected and avoided to keep the soundness.
-\item This equivalence is no longer \textit{sound} if there is more than one callback nested inside another callback : sibling callbacks.
-It is impossible to return two promises, one for each callback.
-Say $A$ uses the callback $cbA$, and $B$ uses the callback $cbB$ ; $cbA$ and $cbB$ are siblings.
-It is different than $A$ and $B$, when both finished, calling both $cbA$ and $cbB$.
-This second case is the use case of the \texttt{all} method, addressed in section \ref{section:all-race}.
-Using this equivalence with two sibling callbacks breaks the semantic.
-To keep the soundness of this equivalence, sibling callbacks must remain siblings.
-\end{itemize}
-In this equivalence, the structure of callback calls is flattened, but the definition of callbacks are still overlapping.
-The callback hell remains, or we introduce code duplication, as explained in section \ref{section:simple}.
-The next section address the flattening of the callback definitions.
 
-\subsection{More equivalences} \label{section:more}
 
-As previously announced, these equivalences leave the callback hell intact, because they encompass all possible cases of callback.
-More precise equivalences are needed to both flatten the callback hell and avoid code duplication.
 
-\subsubsection{Callback to onFulfill and onReject} \label{section:duplication}
 
-The callback handles both \texttt{error} and \texttt{result}, while the \texttt{then} method expect one function for each.
-The compiler analyze and detect how the callback handles them to split it into the two functions to pass to the \texttt{then} method.
-The simplest case is a callback not handling errors at all.
-Like the conditional branch in listing \ref{lst:callback}.
-However, ignoring errors is a bad practice.
-Other examples are a conditional branch, like in listing \ref{lst:err-cond}, or an early return, like in listing \ref{lst:err-return}.
 
-\begin{code}[js, %
-             caption={A conditional switch to handle errors}, %
-             label={lst:err-cond}] %
-my_fn('<arg>', function callback(error, result) {
-  if (error) {
-    // handle the error ...
-  } else {
-    // do something with result ...
-  }
-})
-\end{code}
 
-\begin{code}[js, %
-             caption={An early return to handle errors}, %
-             label={lst:err-return}] %
-my_fn('<arg>', function callback(error, result) {
-  if (error) {
-    // handle the error ...
 
-    return
-  }
-  
-  // do something with result ...
-})
-\end{code}
 
-\subsubsection{all and race} \label{section:all-race}
 
-\paragraph{all}
 
-A callback might needs the completion of multiple operations to proceed.
-For example, to count the number of lines in a bunch of files, all files needs to be read.
-A simple way to do this is to use the same closure to count all the completed operations.
-The actual callback is called only when all operations completes.
-An example of this pattern is in listing \ref{lst:all}.
-It uses a variable \texttt{count}, line \ref{lst:all:after}, and increment it at each operation completion.
-It executes the callback only when the \textit{n} call to \texttt{my_fn} complete, line \ref{lst:all:callback}.
-This pattern is equivalent to the promise method \texttt{all}.
 
-\includecode{js, %
-             caption={Waiting for the completion of all operation before calling the callback}, %
-             label={lst:all}
-             }
-             {snippets/all.js}
 
-\paragraph{race}
 
-Sometimes, a callback needs the completion of at least one operation to proceed.
-For example, to display early result in a broad search.
-This is similar to the previous pattern.
-Instead of waiting for every operation completion, the closure executes the callback when first called.
-To be equivalent to the promise method \texttt{race}, this closure must block all future execution of callback.
 
-\includecode{js, %
-             caption={The first completed operation triggers the callback}, %
-             label={lst:race}
-             }
-             {snippets/race.js}
 
-% The complexity of such analyses would require probably more than syntactic equivalences to encompass all cases.
+
+
+
+
+
+
