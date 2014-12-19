@@ -1,0 +1,17 @@
+\section{Conclusion}
+
+In this paper, we introduced a compiler to transform an imbrication of continuation to a sequence.
+We defined callbacks and Promise.
+We then introduced Due, a new specification similar to Promise, to carry the demonstration of this transformation.
+We presented the equivalence between a continuation and a Due, and the composition of this equivalence for imbricated continuations.
+And finally, we presented a compiler to automate this transformation on real code bases.
+
+The compiler brings a soft segmentation of the asynchronous operations.
+A continuation share its scope with its descendance, \textit{i.e} the following continuations.
+While the callback of a Due doesn't share its scope with the following dues.
+Their scope are disjoints.
+We aim at pushing this independance further.
+
+We saw that the callback of a Due can return another due, to link the next asynchronous operation.
+The operations encapsulated by Dues, are communicating via this medium. 
+A serie of asynchronous operations operated by Dues is very suggestive of a data flow process.
