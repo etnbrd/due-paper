@@ -22,51 +22,31 @@
 }
 
 The world wide web started as a document sharing platform for academics.
+It became a rich application platform\footnote{\url{https://www.mozilla.org/en-US/firefox/os/}}.
 It is now pervasive, and accessible almost everywhere.
-It becames a rich application platform\footnote{\url{https://www.mozilla.org/en-US/firefox/os/}}.
 This transformation began with the introduction in Netscape 2.0 of Javascript, a web scripting language.
 
-Javascript was originally designed as a script language for a graphical environment : the DOM.
-Functions are first class-citizen, which allows to define functions to react to user inputs.
-These functions are named callback.
-They allow to efficiently cope with the distributed and inherently asynchronous architecture of the internet.
+Javascript was originally designed as a script language for the manipulation of a graphical environment : the Document Object Model (DOM\footnote{\url{http://www.w3.org/DOM/}}).
+Functions are first class-citizen.
+It allows to manipulate functions like any object, and link them to react to asynchronous events, \textit{e.g.} user inputs, remote requests.
+These asynchronously triggered functions are named callback, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the internet.
 This made Javascript a language of choice to develop both client and server web applications.
-% This language is now used to build both client and server applications.
 
-Callback were well suited for small interactive scripts.
-But in complete application, they are ill-suited to control the larger asynchronous execution flow.
-Their use leads to intracate imbrications of calls and callbacks, commonly called callback hell, or pyramid of Doom.
-This is acknowledge as a bad practice and reflect the unsuitability of callbacks to control large asynchronous execution flow.
-Eventually, developers enhanced callback to meet their needs.
+Callbacks were well suited for small interactive scripts.
+But in a complete application, they are ill-suited to control the larger asynchronous execution flow.
+Their use leads to intricate imbrications of calls and callbacks, commonly called callback hell\footnote{\url{http://maxogden.github.io/callback-hell/}}, or pyramid of Doom.
+This is widely recognized as a bad practice and reflect the unsuitability of callbacks to control large asynchronous execution flow.
+Eventually, developers enhanced callbacks to meet their needs : they created Promise.
 
 Promise brings the missing features to control the asynchronous execution flow.
-They fulfill this task well enough to be part of the next version of the language.
-However, because Javascript started as a scripting language, beginers are often not introduced to them early enough
-Depsite their benefits, the needs for Promise are not yet fully acknowledge.
-There is such a disparity between the needs for and the acknowledgement of Promise, there is almost 40 different implementations\footnote{\url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
-
-% Web-based application are connected to multiple ressources, \textit{e.g.} sockets, graphical interfaces, file systems.
-% To avoid blocking the other ressources while waiting for one, executions are deferred in the future to meet ressource availabilities.
-% The implementation of this solution is called an event-loop.
-% It allows to efficiently cope with the distributed and inherently asynchronous architecture of the internet.
-% Javascript is not event-based or asynchronous, but it is functional.
-% Because functions are first class citizen, it allows to pass functions to defer their execution.
-% This makes Javascript a language of choice to implement an event-loop.
-% Its main implementations, \textit{DOM} and \textit{Node.js} are event-based. However, \textit{Rhino} is not.
-
-% In these implementations, a deferred execution is called a \textit{callback}.
-% It modifies the arrangement of sequential execution.
-% Two sequential instructions, one after the other in the source, are executed in parallel, not in sequence.
-% To execute instructions in sequence, the first instruction needs to embed the next in a callback.
-% It often result in an intricate imbrication of function definitions and calls, called the callback hell, or the pyramid of doom\footnote{\url{http://maxogden.github.io/callback-hell/}}.
-% This is largely considered a bad practice.
-
-% Promise is an alternative to avoid this imbrication.
-% It allows to replace the overlapping callbacks by a cascading\footnote{\url{http://stackoverflow.com/questions/758486/how-to-implement-javascript-cascades}} sequence of call.
+It fulfill this task well enough to be part of the next version of the Javascript language.
+However, because Javascript started as a scripting language, beginners are often not introduced to Promise early enough.
+Despite its benefits, Promise is not yet widely acknowledged, developers usually wrote their own version of Promise.
+There is such a disparity between the needs for and the acknowledgment of Promise, there is almost 40 different \textit{known} implementations\footnote{\url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
 
 With the coming introduction of Promise as a language feature, we expect an increase of interest.
-We believe many developers will shift to this better suited practice.
-In this paper, we propose a compiler to automate this shift.
+We believe many developers will shift to this better practice.
+In this paper, we propose a compiler to automate this shift in existing code bases.
 We present the transformation from an imbrication of callbacks, the \textit{callback hell}, to a sequence of Promise operations,
 We focus on the consequences of this transformation on the source of a web application.
 
@@ -74,8 +54,4 @@ In section \ref{section:definitions} we define callback and Promise.
 We then introduce a new specification, called Due, essentially similar to Promise.
 In section \ref{section:equivalences}, we explain the transformation from imbrication to sequence.
 In section \ref{section:compiler}, we present an implementation of this transformation.
-\comment{then comes related works, and finally conclusion} 
-
-% Why Node.js ?
-% -> we target server side code ?
-% -> callback hell very present because code base are sometime heavy ?
+We present related works in section \ref{section:related}, and finally conclude.

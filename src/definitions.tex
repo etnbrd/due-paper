@@ -12,7 +12,7 @@ We distinguish three kinds of callbacks.
   A listener is called asynchronously, when a new message in the stream is available.
   \item A \textbf{Continuation} is a function called asynchronously once a unique result is available.
   Callbacks are often mistaken for continuations.
-  We only focus on continuation in this paper, because promises can replace only continuations.
+  We only focus on continuation in this paper, because promises - or dues - can replace only continuations.
 \end{itemize}
 
 In \textit{Node.js}, the signature of a continuation uses the convention \textit{error-first}\footnote{\label{ftn:error-first}\url{https://docs.nodejitsu.com/articles/errors/what-are-the-error-conventions}}\footnote{\url{http://programmers.stackexchange.com/questions/144089/different-callbacks-for-error-or-error-as-first-argument}}.
