@@ -2,23 +2,26 @@
 
 \subsection{Callbacks} \label{section:definitions:callback}
 
-A callback is a function passed as an argument to another function to defer its execution after a result is made available.
+A callback is a function passed as an argument to another function to defer its execution.
+It allows to process arguments not available in the current context.
 We distinguish three kinds of callbacks.
 \begin{itemize}
   \item An \textbf{Iterator} is a function called for each item in a set.
-  In \textit{node.js}, the methods of the Array prototype expect iterators, \textit{e.g.} \texttt{forEach}, \texttt{map}, \texttt{map}.
+  % In \textit{node.js}, the methods of the Array prototype expect iterators, \textit{e.g.} \texttt{forEach}, \texttt{map}, \texttt{map}.
   An iterator is often called synchronously.
   \item A \textbf{Listener} is a function called for each message in a stream.
-  A listener is called asynchronously, when a new message in the stream is available.
+  A listener is called asynchronously, for each new available message.
   \item A \textbf{Continuation} is a function called asynchronously once a unique result is available.
   Callbacks are often mistaken for continuations.
   We only focus on continuation in this paper, because promises - or dues - can replace only continuations.
 \end{itemize}
 
+When continuation are used, the convention on how to handle the result must be common for both the caller and the caller.
 In \textit{Node.js}, the signature of a continuation uses the convention \textit{error-first}\footnote{\label{ftn:error-first}\url{https://docs.nodejitsu.com/articles/errors/what-are-the-error-conventions}}\footnote{\url{http://programmers.stackexchange.com/questions/144089/different-callbacks-for-error-or-error-as-first-argument}}.
 The first argument contains an error or \texttt{null} if no error occurred ; then follows the result.
 Listing \ref{lst:continuation} is an example of continuation.
 The \texttt{my_fn} function is defined in listing \ref{lst:my-fn}.
+Another convention is to provide two distinct functions to handle results and errors. 
 
 \begin{code}[js, %
              caption={Example of a continuation}, %
@@ -26,28 +29,40 @@ The \texttt{my_fn} function is defined in listing \ref{lst:my-fn}.
 my_fn(<arg>, function continuation(error, result) {
   if (!error) {
     // do something with result ...
+  } else {
+    // do something with error ...
   }
 });
 \end{code}
 
-The continuation allows to continue the execution sequentially, after the result of \textit{my_fn} is available. 
-When continuations are defined inside the call, like \textit{continuation}, the sequence of deferred execution results in an intricate imbrication of calls and continuations, like in listing \ref{lst:cbhell}.
+% The continuation allows to continue the execution sequentially, after the result of \textit{my_fn} is available. 
+% When continuations are defined inside the call, like \textit{continuation}, the sequence of deferred execution results in an intricate imbrication of calls and continuations, like in listing \ref{lst:cbhell}.
+The callback hell occurs when many asynchronous calls are cascaded, like in listing \ref{lst:cbhell}.
+Each caller must wait for the result before calling the next function.
 Promise allows to arrange a sequence of deferred execution in a more readable way.
 
 \begin{code}[js, %
              caption={Example of a cascade of continuations}, %
              label={lst:cbhell}] %
-my_fn_1(<arg>, function continuation(error, result) {
+my_fn_1(arg, function continuation(error, result) {
   if (!error) {
-    my_fn_2(<arg>, function continuation(error, result) {
+    // do something with result to get arg
+    my_fn_2(arg, function continuation(error, result) {
       if (!error) {
-        my_fn_3(<arg>, function continuation(error, result) {
+        // do something with result to get arg
+        my_fn_3(arg, function continuation(error, result) {
           if (!error) {
             // do something with result ...
+          } else {
+            // do something with error ...
           }
         });
+      } else {
+        // do something with error ...
       }
     });
+  } else {
+    // do something with error ...
   }
 });
 \end{code}
@@ -59,11 +74,11 @@ my_fn_1(<arg>, function continuation(error, result) {
 % There is, in Javascript, numerous Promise implementations\footnote{37 different implementations in Javascript \url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
 
 This section is based on the Promises section of the specification in ECMAScript 6 Harmony\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects}} and the Promises page on the Mozilla Developer Network\footnote{\url{https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise}}.
-The specification defines a promise as \textit{an object that is used as a placeholder for the eventual results of a deferred (and possibly asynchronous) computation.}
+The specification defines a promise as \textit{an object that is used as a placeholder for the eventual results of a deferred (and possibly asynchronous) computation.} (ECMAScript 6 Harmony Specification, section 25.4 Promise Objects)
 
 A promise is an object returned by a function to represent its result.
 Because it is possibly unavailable synchronously, it still requires a callback to defer the execution when the result is made available.
-A promise also require another callback to defer the execution in case of errors.
+A promise also requires another callback to defer the execution in case of errors.
 This two callbacks are passed to the method \texttt{then} of the promise, like illustrated in listing \ref{lst:then}.
 
 \begin{code}[js, %
@@ -78,35 +93,46 @@ promise.then(function onSuccess(result) {
 });
 \end{code}
 
-To allow cascading, the method \texttt{then} returns a promise which resolve when the promise returned by its callbacks resolve.
-This is illustrated in listing \ref{lst:promises-cascade}.
+A sequence of promises is arranged as a cascade of call, by opposition to the imbrication of callbacks.
+To allow cascading, the method \texttt{then} returns a promise which resolves when the promise returned by its callbacks resolve.
+This is illustrated in listing \ref{lst:promises-sequence}.
 The two first \texttt{onSuccess} callbacks call \texttt{my\_fn\_2} and \texttt{my\_fn\_3}, return the promises \texttt{p2} and \texttt{p4}.
 The promises \texttt{p3} and \texttt{p5}, returned by the \texttt{then} calls to \texttt{p1} and \texttt{p3}, resolve respectively when \texttt{p2} and \texttt{p4} resolve.
 This behavior allow to arrange the callback in a flat cascade of calls, instead of an imbrication of calls and callback.
 
 \begin{code}[js, %
-             caption={Example of a promise}, %
-             label={lst:promises-cascade}] %
-var p1 = my_fn_1(<arg>)
+             caption={Example of a sequence of promise}, %
+             label={lst:promises-sequence}] %
+var p1 = my_fn_1(arg)
 
 var p3 = p1.then(function onSuccess(result) {
-  var p2 = my_fn_2(<arg>);
+  // do something with result to get arg
+  var p2 = my_fn_2(arg);
   return p2;
-}, onErrors)
+}, function onErrors(reason) {
+  // do something with the reason of the error ...
+})
 
 var p5 = p2.then(function onSuccess(result) {
-  var p4 = my_fn_3(<arg);
+  // do something with result to get arg
+  var p4 = my_fn_3(arg);
   return p4;
-}, onErrors)
+}, function onErrors(reason) {
+  // do something with the reason of the error ...
+})
 
 p5.then(function onSuccess(result) {
   // do something with result ...
-}, onErrors);
-
-function onErrors(reason) {
+}, function onErrors(reason) {
   // do something with the reason of the error ...
-}
+});
 \end{code}
+
+The convention for callbacks used by Promises differs from the convention used in \textit{Node.js}.
+The former uses two callbacks, while the latter uses the only one, with the \textit{error-first} convention.
+This difference is mainly syntactic, and is irrelevant to the transformation from imbrication to sequence.
+To remove the syntactic difference from the transformation presented in this paper, we present a new specification, Due, in section \ref{section:due}.
+Dues are essentially similar to Promises, and use the \textit{error-first} convention, predominant in \textit{Node.js}.
 
 % \subsubsection{Specification}
 
@@ -148,7 +174,7 @@ function onErrors(reason) {
 % However, we present equivalences for both in section \ref{section:all-race}.
 
 
-\subsection{Dues} \label{section:definitions:due}
+\section{Dues} \label{section:due}
 
 We present a simpler alternative to promises in Javascript called \textit{Due}.
 A due is an object that is used as a placeholder for the eventual results of a deferred computation.
@@ -164,16 +190,18 @@ Similarly to Promise, to allow cascading, the method \texttt{then} returns a Due
 \begin{code}[js, %
              caption={Example of a due}, %
              label={lst:then}] %
-var due = my_fn(<arg>)
+var due = my_fn(arg)
 
 due.then(function callback(error, result) {
   if (!error) {
     // do something with result ...
+  } else {
+    // do something with error ...
   }
 });
 \end{code}
 
-A due \texttt{due} is settled when the function \texttt{settle} is called.
+In listing \ref{lst:then}, \texttt{due} is settled when the function \texttt{settle} is called.
 If \texttt{due} is settled, a call to \texttt{due.then(onSettlement)} immediately call the function \texttt{onSettlement}.
 A due is pending if it is not settled.
 A due is resolved if it is settled or if it has been locked in to match the state of another due.

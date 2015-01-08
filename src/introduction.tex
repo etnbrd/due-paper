@@ -22,27 +22,26 @@
 }
 
 The world wide web started as a document sharing platform for academics.
-It became a rich application platform\footnote{\url{https://www.mozilla.org/en-US/firefox/os/}}.
-It is now pervasive, and accessible almost everywhere.
+It is now a rich application platform, pervasive, and accessible almost everywhere.
 This transformation began with the introduction in Netscape 2.0 of Javascript, a web scripting language.
 
 Javascript was originally designed as a script language for the manipulation of a graphical environment : the Document Object Model (DOM\footnote{\url{http://www.w3.org/DOM/}}).
 Functions are first class-citizen.
 It allows to manipulate functions like any object, and link them to react to asynchronous events, \textit{e.g.} user inputs, remote requests.
 These asynchronously triggered functions are named callback, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the internet.
-This made Javascript a language of choice to develop both client and server web applications.
+This made Javascript a language of choice to develop both client and more recently server web applications.
 
 Callbacks were well suited for small interactive scripts.
 But in a complete application, they are ill-suited to control the larger asynchronous execution flow.
-Their use leads to intricate imbrications of calls and callbacks, commonly called callback hell\footnote{\url{http://maxogden.github.io/callback-hell/}}, or pyramid of Doom.
-This is widely recognized as a bad practice and reflect the unsuitability of callbacks to control large asynchronous execution flow.
-Eventually, developers enhanced callbacks to meet their needs : they created Promise.
+Their use leads to intricate imbrications of function calls and callbacks, commonly presented as callback hell\footnote{\url{http://maxogden.github.io/callback-hell/}}, or pyramid of Doom.
+This is widely recognized as a bad practice and reflects the unsuitability of callbacks to control large asynchronous execution flow.
+Eventually, developers enhanced callbacks to meet their needs with the concept of Promise\cite{Liskov1988}.
 
-Promise brings the missing features to control the asynchronous execution flow.
-It fulfill this task well enough to be part of the next version of the Javascript language.
-However, because Javascript started as a scripting language, beginners are often not introduced to Promise early enough.
-Despite its benefits, Promise is not yet widely acknowledged, developers usually wrote their own version of Promise.
-There is such a disparity between the needs for and the acknowledgment of Promise, there is almost 40 different \textit{known} implementations\footnote{\url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
+Promises bring the missing features to control the asynchronous execution flow.
+They fulfill this task well enough to be part of the next version of the Javascript language.
+However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough.
+Despite its benefits, the concept of Promise is not yet widely acknowledged, developers usually wrote their own version of Promise.
+There is such a disparity between the needs for and the acknowledgment of Promises, there is almost 40 different \textit{known} implementations\footnote{\url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
 
 With the coming introduction of Promise as a language feature, we expect an increase of interest.
 We believe many developers will shift to this better practice.
@@ -50,8 +49,20 @@ In this paper, we propose a compiler to automate this shift in existing code bas
 We present the transformation from an imbrication of callbacks, the \textit{callback hell}, to a sequence of Promise operations,
 We focus on the consequences of this transformation on the source of a web application.
 
+% TODO more to say here
+
 In section \ref{section:definitions} we define callback and Promise.
-We then introduce a new specification, called Due, essentially similar to Promise.
+We then introduce in section \ref{section:due} a new specification, called Due, essentially similar to Promise.
+The interface exposed by Dues is close to the interface of Callbacks.
+While Promises use a different convention.
 In section \ref{section:equivalences}, we explain the transformation from imbrication to sequence.
 In section \ref{section:compiler}, we present an implementation of this transformation.
-We present related works in section \ref{section:related}, and finally conclude.
+We present related works in section \ref{section:related}, and finally conclude in section \ref{section:conclusion}.
+
+
+
+
+
+... to release the caller from its classical blocking state.
+With a callback, the caller is immediatly unblocked and the result of the function will be treated later as the function is invoked at the termination of the callee.
+The callback approach is the functionnal way of addressing asynchronous call without external synchronization mechanism such as IPC.
