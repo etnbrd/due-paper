@@ -1,26 +1,26 @@
-var V = require('./Vow/src');
+var D = require('due');
 
 module.exports = {
-  sync: function(arg, callback) {
-    return new V(function(settle) {
+  sync: function(arg, continuation) {
+    return new D(function(settle) {
       var result = arg,
           err = null;
 
-      if (callback)
-        callback(err, result);
+      if (continuation)
+        continuation(err, result);
       
       settle(err, result);
     })
   },
 
-  async: function(arg, callback) {
-    return new V(function(settle) {
+  async: function(arg, continuation) {
+    return new D(function(settle) {
       setImmediate(function() {
         var result = arg,
             err = null;
 
-        if (callback)
-          callback(err, result);
+        if (continuation)
+          continuation(err, result);
 
         settle(err, result);
       })

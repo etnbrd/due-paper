@@ -25,44 +25,37 @@ The world wide web started as a document sharing platform for academics.
 It is now a rich application platform, pervasive, and accessible almost everywhere.
 This transformation began with the introduction in Netscape 2.0 of Javascript, a web scripting language.
 
-Javascript was originally designed as a script language for the manipulation of a graphical environment : the Document Object Model (DOM\footnote{\url{http://www.w3.org/DOM/}}).
-Functions are first class-citizen.
-It allows to manipulate functions like any object, and link them to react to asynchronous events, \textit{e.g.} user inputs, remote requests.
-These asynchronously triggered functions are named callback, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the internet.
-This made Javascript a language of choice to develop both client and more recently server web applications.
+Javascript was originally designed for the manipulation of a graphical environment : the Document Object Model (DOM\ftnt{http://www.w3.org/DOM/}).
+Functions are first class-citizens ; this property allows to manipulate functions like any object, and link them to react to asynchronous events, \textit{e.g.} user inputs, remote requests.
+These asynchronously triggered functions are named callback, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the Internet.
+This made Javascript a language of choice to develop both client and, more recently, server applications for the web.
 
-Callbacks were well suited for small interactive scripts.
+Callbacks are well suited for small interactive scripts.
 But in a complete application, they are ill-suited to control the larger asynchronous execution flow.
-Their use leads to intricate imbrications of function calls and callbacks, commonly presented as callback hell\footnote{\url{http://maxogden.github.io/callback-hell/}}, or pyramid of Doom.
+Their use leads to intricate imbrications of function calls and callbacks, commonly presented as \textit{callback hell}\ftnt{http://maxogden.github.io/callback-hell/}, or \textit{pyramid of Doom}.
 This is widely recognized as a bad practice and reflects the unsuitability of callbacks to control large asynchronous execution flow.
 Eventually, developers enhanced callbacks to meet their needs with the concept of Promise\cite{Liskov1988}.
 
-Promises bring the missing features to control the asynchronous execution flow.
+Promises bring a different way to control the asynchronous execution flow, better suited for large applications.
 They fulfill this task well enough to be part of the next version of the Javascript language.
-However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough.
-Despite its benefits, the concept of Promise is not yet widely acknowledged, developers usually wrote their own version of Promise.
-There is such a disparity between the needs for and the acknowledgment of Promises, there is almost 40 different \textit{known} implementations\footnote{\url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
+However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough, and start their code with the classical Javascript callback approach.
+Moreover, despite its benefits, the concept of Promise is not yet widely acknowledged, developers usually wrote their own version of Promise.
+There is such a disparity between the needs for and the acknowledgment of Promises, there is almost 40 different \textit{known} implementations\ftnt{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}.
+% TODO reformulate this sentence.
 
-With the coming introduction of Promise as a language feature, we expect an increase of interest.
-We believe many developers will shift to this better practice.
+With the coming introduction of Promise as a language feature, we expect an increase of interest, and believe that many developers will shift to this better practice.
 In this paper, we propose a compiler to automate this shift in existing code bases.
-We present the transformation from an imbrication of callbacks, the \textit{callback hell}, to a sequence of Promise operations,
-We focus on the consequences of this transformation on the source of a web application.
+We present the transformation from an imbrication of callbacks to a sequence of Promise operations, while preserving the semantic.
 
-% TODO more to say here
+Promises bring a better way to control the asynchronous execution flow, but they also impose a conditional control over the result of the execution.
+Callbacks, on the other hands, leave this conditional control to the developer.
+This paper focus on the transformation of the control of the asynchronous execution flow from callbacks to Promises.
+We introduce a new specification, called Dues, essentially similar to Promises, but leaving unchanged the conditional control initially provided by callbacks.
+This approach enables us to compile legacy Javascript code from code repository and bring a first automated step toward full Promises integration.
+% TODO This simple and pragmatic compiler has been tested over ...
 
-In section \ref{section:definitions} we define callback and Promise.
-We then introduce in section \ref{section:due} a new specification, called Due, essentially similar to Promise.
-The interface exposed by Dues is close to the interface of Callbacks.
-While Promises use a different convention.
+In section \ref{section:definitions} we define callbacks and Promises.
+We then introduce Dues in section \ref{section:due}.
 In section \ref{section:equivalences}, we explain the transformation from imbrication to sequence.
 In section \ref{section:compiler}, we present an implementation of this transformation.
 We present related works in section \ref{section:related}, and finally conclude in section \ref{section:conclusion}.
-
-
-
-
-
-... to release the caller from its classical blocking state.
-With a callback, the caller is immediatly unblocked and the result of the function will be treated later as the function is invoked at the termination of the callee.
-The callback approach is the functionnal way of addressing asynchronous call without external synchronization mechanism such as IPC.

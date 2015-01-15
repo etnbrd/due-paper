@@ -4,14 +4,13 @@
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage[english, french]{babel}
-\usepackage[babel=true]{csquotes}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{syntax}
-\usepackage{arevmath}
-\usepackage{multirow}
+% \usepackage{arevmath}
+% \usepackage{multirow}
 
 \usepackage{tikz}
 \usepackage{pgfplots}
@@ -43,6 +42,7 @@
 \bibliography{../src/bib/Distributed Systems.bib}
 \bibliography{../src/bib/Compilation.bib}
 \bibliography{../src/bib/TAJS.bib}
+\bibliography{../src/bib/Javascript-static analysis.bib}
 
 % \bibliographystyle{abbrv}
 % \bibliography{../src/bib/OS.bib,../src/bib/Flow-Based Programming.bib,../src/bib/Functional Programming-Functional Reactive Programming.bib,../src/bib/Stream.bib,../src/bib/Dataflow.bib,../src/bib/Web & Social Networks.bib,../src/bib/Others.bib,../src/bib/Actor model.bib,../src/bib/Misc.bib,../src/bib/Parallelisation.bib,../src/bib/Others.bib,../src/bib/Distributed Systems.bib}
@@ -59,7 +59,8 @@
 \title{
   % Finding equivalence between monolithic and flow based programming models
 	% A fluxionnal programming langage
-  Compilation from callback imbrication to sequence
+  % Automatic transformation from callback imbrication to sequence
+  Automatically update your callbacks into Promises
 }
 
 \numberofauthors{2}
@@ -70,8 +71,8 @@ Etienne Brodu, Stéphane Frénot\\
   \affaddr{\textsf{\small{Université de Lyon, INRIA,}}}\\
   \affaddr{\textsf{\small{INSA-Lyon, CITI-INRIA, F-69621, Villeurbanne, France}}}\\
 \alignauthor
-Fabien Cellier, Frédéric Oblé\\
-  \email{\textsf{\normalsize{\textit{firstname}.\textit{lastname}@worldline.com}}}\\
+Frédéric Oblé\\
+  \email{\textsf{\normalsize{frederic.oble@worldline.com}}}\\
   \affaddr{\textsf{\small{Worldline}}}\\
   \affaddr{\textsf{\small{53 avenue Paul Krüger - CS 60195}}}\\
   \affaddr{\textsf{\small{69624 Villeurbanne Cedex}}}
@@ -106,6 +107,6 @@ Fabien Cellier, Frédéric Oblé\\
 \input{conclusion}
 
 \printbibliography[]
-% \input{appendix}
+\input{appendix}
 
 \end{document}

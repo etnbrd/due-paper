@@ -1,26 +1,27 @@
 \section{Conclusion} \label{section:conclusion}
 
 In this paper, we introduced a compiler to automatically transform an imbrication of continuations into a sequence.
-Firstly, we defined callbacks and Promise as the base for this work.
-We then introduced Due, a new specification similar to Promise, to carry the demonstration of this transformation.
+Firstly, we defined callbacks and Promises as the base for this work.
+We then introduced Dues, a new specification similar to Promises, to carry the demonstration of this transformation.
 We presented the equivalence between a continuation and a Due, and the composition of this equivalence for imbricated continuations.
-And finally, we presented a compiler to automate this transformation on actual code bases.
+And finally, we presented a compiler to automate this transformation on code bases.
 
 A continuation share its scope with its descendance, \textit{i.e.} the following imbricated continuations.
-While A callback due can not share its own identifiers with its descendance, \textit{i.e.} the following dues.
-Their scope are disjoints.
-However, it can share global identifiers, and object references.
-This difference of accessibility imposes the compiler to segment the asynchronous control flow.
-This segmentation is soft : the stack is independent, but the heap is shared.
+Imbricated continuations can share identifiers.
+While a due callback can not share identifiers with the following dues.
+Their scopes are disjoints, still, sequence of dues can share global identifiers and object references.
+This difference of accessibility implies, after compilation, the segmentation of the asynchronous control flow into indepenent steps.
+This segmentation is soft : their stacks are independent, but they share the heap.
 
-The callback of a Due returns another due, for the asynchronous operation completions to trigger the next.
-The result of an asynchronous operation is passed to the next through the Due - or Promise - structure.
-A serie of asynchronous operations operated by Dues - or Promises - is very suggestive of a data flow process.
+Dues allow to be arranged in cascade.
+The result of an asynchronous operation is passed from one Due to the next.
+A serie of asynchronous operations organized with Dues is very suggestive of a data flow process.
 It is a chain of operations feeding the next with the result of the previous.
 
 We aim at pushing further this analogy.
 We want to impose the compiler to bring complete independance to asynchronous operations.
-So that the only communication is of their results along the flow.
+We think it is possible to arrange an application as a chain of independent asynchronous operations communicatiing by flow of messages.
+% So that the only communication is of their results along the flow.
 Such a compiler would be able to transform a monolithic program into a chain of independent asynchronous operations linked by a flow of data.
 We expect the possibility for new execution models to take advantage of this independence to bring performance scalability.
-While developers continue using the monolithic model for its evolution scalability.
+While developers would continue using the monolithic model for its evolution scalability.

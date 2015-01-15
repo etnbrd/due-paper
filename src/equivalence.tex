@@ -1,29 +1,35 @@
 \section{Equivalences} \label{section:equivalences}
 
-We present two examples of source code manipulation to transform continuation into Dues.
+In the previous section, we present the difference between continuation and Dues
+Both allow control over the sequentiality of the execution flow.
+When using only continuation, sequence of asynchronous operations are nested, one in the continuation of the next. 
+On the other hand, Dues allow the linear composition of continuations.
+
+Based on this difference, we present two examples of source code manipulation to transform continuation into Dues.
 The first manipulation is the simplest one.
 It transforms a unique continuation into a Due.
 The second manipulation is the composition of the first manipulation.
-It transforms multiple continuations with overlapping definitions into a sequence of Dues.
-This second manipulation requires to move the continuation definitions.
-This modifies the semantic.
+It transforms nested continuations into a linear sequence of Dues.
+This second manipulation requires to move the continuation definitions, which modifies the semantic.
 We finally present a static lexical analysis to modify the source code before the manipulation to avoid the semantic modification.
 
-The main advantage for developers using Dues, is to flatten the overlapping continuations into a more readable sequence of functions.
-The pyramid of continuations only occurs when they are defined by \textit{FunctionExpressions}\footnote{\url{http://www.ecma-international.org/ecma-262/5.1/\#sec-11.2.5}}.
+The main advantage for developers to use Dues, is to flatten the overlapping continuations into a more readable, linear sequence.
+The nesting of continuations only occurs when they are defined by \textit{FunctionExpressions}\footnote{\url{http://www.ecma-international.org/ecma-262/5.1/\#sec-11.2.5}}.
 When the continuation is not declared \textit{in situ}, it avoids the imbrication of function declarations and calls.
-So, we focus only on the modification of continuation declared \textit{in situ}.
+We focus only on the modification of continuation declared \textit{in situ}.
+Moreover, the transformation is \textit{sound} only when manipulating \textit{FunctionExpressions}, as explained in section \ref{section:equivaences:general}.
 % This equivalence would not improve readability.
 % Moreover, it would require heavier manipulation of the source code, as explained in section \ref{section:equivaences:general}.
 
-This transformation modifies the syntax of the call.
-The function called needs to be modified to fit this new syntax, it must return a Due.
-\texttt{my_fn} in listing \ref{lst:my-fn} is a function both expecting a callback and returning a Due.
-There is no libraries compatible with both callback and Due, like \texttt{my_fn}.
+The transformations presented modifies the syntax of the asynchronous call.
+The asynchronous function needs to be modified to return a Due, instead of expecting a continuation.
+For the demonstrations, we use the function \texttt{my_fn} in listing \ref{lst:my-fn}.
+It both expects a callback and returns a Due.
+There is no libraries compatible with both callback and Dues, like \texttt{my_fn}.
 However, the Due library provide a function \texttt{mock} to transform a function expecting continuation into a function returning a Due.
 We don't focus neither on the replacement of these libraries, nor on the detection of their methods in the source code.
-We expect the continuation to be already screened out from other callbacks, either by a developer, or by another automated tool.
-We address this problem in section \label{section:compiler:lib-compilation}.
+We expect the continuations to be already screened out from other callbacks, either by a developer, or by another automated tool.
+We address this problem in section \ref{section:compiler:lib-compilation}.
 
 \includecode{js, %
              caption={Example of two function expecting a callback, and returning a promise, one synchronous the other asynchronous.}, %
@@ -32,17 +38,17 @@ We address this problem in section \label{section:compiler:lib-compilation}.
 \subsection{Simple equivalence} \label{section:equivalences:general}
 
 As explained in section \ref{section:definitions:callback}, a continuation is a function passed as argument to defer its execution, like in listing \ref{lst:ct-ex}.
-As explained in section \ref{section:definitions:due}, a Due is an object to defer a computation, and exposes a method \texttt{then} to continue the execution after the deferred computation, like in listing \ref{lst:du-ex}.
-The difference between the listings \ref{lst:ct-ex} and \ref{lst:du-ex}, is mainly syntactical.
+As explained in section \ref{section:due}, a Due is an object to defer a computation, and exposes a method \texttt{then} to continue the execution after the deferred computation, like in listing \ref{lst:du-ex}.
+
+Because the difference between continuations and dues is the composition, the difference between the listings \ref{lst:ct-ex} and \ref{lst:du-ex} is mainly syntactical.
 The transformation is immediate, and trivial.
-As illustrated in listing \ref{lst:my-fn}, \texttt{my_fn} both accepts a callback and returns a Due.
+% As illustrated in listing \ref{lst:my-fn}, \texttt{my_fn} both accepts a callback and returns a Due.
 The manipulation consist of calling the method \texttt{then} of the Due returned by \texttt{my_fn}, and moving \texttt{continuation} to the arguments of this new call.
 In Javascript, when entering a scope, declaration of variables and functions are processed before any execution.
 Declaring an identifier anywhere in a scope is equivalent to declaring it at the top.
 The identifier \texttt{continuation}, is declared before the call to \texttt{my_fn} in both listings \ref{lst:ct-ex} and \ref{lst:du-ex}.
 This behavior is called \textit{hoisting}.
-It makes this manipulation \textit{sound}.
-The manipulation conserves the semantic for \textit{FunctionExpression} like \texttt{continuation}.
+The manipulation is \textit{sound} because it conserves the semantic.% for \textit{FunctionExpression} like \texttt{continuation}.
 
 For other types of continuations, \textit{e.g.} an expression returning a function, this manipulation modifies the execution order.
 Before the manipulation, the expression evaluation would occur \textbf{before} the call to \texttt{my_fn}.
@@ -62,30 +68,31 @@ The manipulation is \textit{sound} only when manipulating \textit{FunctionExpres
              }
              {snippets/du-ex.js}
 
-\subsection{Overlapping continuations} \label{section:overlapping-continuations}
+\subsection{Composition of nested continuations} \label{section:overlapping-continuations}
 
 The previous manipulation allows the modification of only one continuation.
-To transform an overlapping pyramid of continuation into a sequence of Dues, we need to assure the composition of this simple transformation.
-An example of overlapping pyramid of continuation is illustrated in listing \ref{lst:ct-seq}.
-The expected composition manipulation is illustrated in listing \ref{lst:du-seq}.
+To transform a nested pyramid of continuations into a sequence of Dues, we need to assure the composition of this simple transformation.
+An example of nested pyramid of continuation is illustrated in listing \ref{lst:ct-seq}.
+The expected result for the composition is illustrated in listing \ref{lst:du-seq}.
+
 In listing \ref{lst:ct-seq}, the two continuations definition, \texttt{ct1} line \ref{lst:ct-seq:ct1} and \texttt{ct2} line \ref{lst:ct-seq:ct2}, are overlapping.
 While, in listing \ref{lst:du-seq}, they are not overlapping, they are defined sequentially, one after the other.
-The transformation between \ref{lst:ct-seq} and \ref{lst:du-seq} is similar to the previous example, only two more transformations are required.
-To link the sequence of execution, the \texttt{cb1} must \textit{a)} retrieves the Due returned by the second call to \texttt{my_fn}, line \ref{lst:du-seq:cbdef2}, and \textit{b)} return it, line \ref{lst:du-seq:ret}.
+The transformation between \ref{lst:ct-seq} and \ref{lst:du-seq} is similar to the previous transformation, only two more transformations are required.
+For the linear composition, \texttt{ct1} must \textit{a)} retrieves the Due returned by the second call to \texttt{my_fn}, line \ref{lst:du-seq:ctdef2}, and \textit{b)} returns it, line \ref{lst:du-seq:ret}.
 
 The composition of the simpler manipulation leads to two semantical differences between listing \ref{lst:ct-seq} and \ref{lst:du-seq}.
 Moving the definition of \texttt{ct2} is not \textit{sound}.
 \begin{itemize}
-\item In listing \ref{lst:ct-seq}, if \texttt{my\_fn} calls \texttt{ct2} synchronously, its execution occurs before \circled{2}, line \ref{lst:ct-seq:cm2}.
-While in listing \ref{lst:du-seq}, whether the Due returned by \texttt{my\_fn} settles synchronously or not, the execution of \texttt{ct2} occurs after \circled{2}, line \ref{lst:du-seq:cm2}
-To keep the semantic intact, the manipulation is practicable only on asynchronous functions.
-We need to assure the asynchronism of \texttt{my\_fn}.
-\item In listing \ref{lst:ct-seq}, because the definitions of \texttt{ct1} and \texttt{ct2} are overlapping, their environment record, commonly called scope, are also overlapping.
-The function \texttt{ct1} shares its identifiers with \texttt{ct2}.
-While in listing \ref{lst:du-seq}, the definitions of \texttt{ct1} and \texttt{ct2} are siblings, so \texttt{ct1} and \texttt{ct2} have their environment records disjoints.
-If \texttt{ct2} uses identifiers defined in \texttt{ct1}, the manipulation makes them inaccessible.
-To keep the semantic intact, we need to analyze the environment records to assure their disjunction before the manipulation. 
-We address this issue in section \ref{section:disjunction}.
+  \item In listing \ref{lst:ct-seq}, if \texttt{my\_fn} calls \texttt{ct2} synchronously, its execution occurs before \circled{2}, line \ref{lst:ct-seq:cm2}.
+  While in listing \ref{lst:du-seq}, whether the Due returned by \texttt{my\_fn} settles synchronously or not, the execution of \texttt{ct2} occurs after \circled{2}, line \ref{lst:du-seq:cm2}.
+  To keep the semantic intact, only continuations of asynchronous functions can be turned into Dues.
+  We need to assure the asynchronism of \texttt{my\_fn}.
+  \item In listing \ref{lst:ct-seq}, because the definitions of \texttt{ct1} and \texttt{ct2} are overlapping, their environment record, commonly called scope, are also overlapping.
+  The function \texttt{ct1} shares its identifiers with \texttt{ct2}.
+  While in listing \ref{lst:du-seq}, the definitions of \texttt{ct1} and \texttt{ct2} are siblings, so \texttt{ct1} and \texttt{ct2} have disjoint scopes.
+  If \texttt{ct2} uses identifiers defined in \texttt{ct1}, the manipulation makes them inaccessible.
+  To keep the semantic intact, we need to analyze their scope to assure their disjunction before the manipulation. 
+  We address this issue in section \ref{section:disjunction}.
 \end{itemize}
 
 \includecode{js, %
@@ -102,23 +109,24 @@ We address this issue in section \ref{section:disjunction}.
 
 \subsection{Assure environment record disjunction} \label{section:disjunction}
 
-In Javascript, a function defines a Lexical Environment\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-lexical-environments}}.
-A lexical environment consists of an environment record and a possibly null reference to an outer environment.
-An Environment Record records the identifier bindings that are created within the scope of its associated Lexical Environment.
-Javascript exposes two built-in functions that dynamically modify lexical environment : \texttt{eval} and \texttt{with}.
-We consider a subset of Javascript, excluding \texttt{eval} and \texttt{with}.
+In Javascript, a function defines a \textit{Lexical Environment}\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-lexical-environments}}.
+A \textit{Lexical Environment} defines the scope of a function.
+It consists of an \textit{Environment Record} and a - potentially null - reference to an outer \textit{Lexical Environment}.
+An \textit{Environment Record} records the identifier bindings that are created within the scope of its associated \textit{Lexical Environment}.
+Javascript exposes two built-in functions that dynamically modify \textit{Lexical Environment} : \texttt{eval} and \texttt{with}.
 
-This subset is lexically scoped at the function level.
-A Lexical Environment is static, it is immutable during run time.
-So it is possible to infer the identifiers and their scopes before run time.
+To avoid dynamical modifications of Lexical Environment, we consider a subset of Javascript, excluding \texttt{eval} and \texttt{with}.
+This subset is statically - or lexically - scoped at the function level.
+A \textit{Lexical Environment} is static, it is immutable during run time.
+It is possible to infer the identifiers and their scopes before run time.
 The scope of an identifier is limited to the defining function and its children.
-To assure the disjunction of two Environment records, we avoid dynamical modifications by excluding programs using these functions.
 
-In listing \ref{lst:ct-seq}, the environment records of \texttt{ct1} and \texttt{ct2} are overlapping.
+In listing \ref{lst:ct-seq}, the scopes of \texttt{ct1} and \texttt{ct2} are overlapping.
+The \textit{Lexical Environment} of \texttt{ct1} is the outer environment of the \textit{Lexical Environment} of \texttt{ct2}.
 The identifier \texttt{shared_identifier} declared line \ref{lst:ct-seq:shared-identifier}, is accessible from \texttt{ct2}.
-However, in listing \ref{lst:vo-seq}, the Environment Records of \texttt{ct1} and \texttt{ct2} are siblings.
+However, in listing \ref{lst:vo-seq}, the \textit{Environment Records} of \texttt{ct1} and \texttt{ct2} are siblings.
 The identifiers declared in \texttt{ct1} are no longer accessible from \texttt{ct2}.
-To move the child Environment Records out of its parent while keeping the semantic, it needs to be disjoint from its parent.
+To move the child \textit{Environment Records} out of its parent while keeping the semantic, it needs to be disjoint from its parent.
 Two environment records are disjoints if they don't share any identifiers.
 Two environment records are joints if they share at least one identifier.
 A shared identifier is replaceable by an identifier declared in the parent outer environment record to be accessible by both the parent and the child.
