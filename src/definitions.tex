@@ -3,29 +3,37 @@
 \subsection{Callbacks} \label{section:definitions:continuation}
 
 A callback is a function passed a as a parameter to a function call.
-% It is classically invoked when the callee decides to give hand back to the caller.
-It is invoked with arguments not available in the caller context, to hand them back and continue the execution.
+It is invoked by the callee to continue the execution with arguments not available in the caller context.
 We distinguish three kinds of callbacks.
 
 \begin{itemize}
-  \item An \textbf{Iterator} is a function called for each item in a set. An iterator is often called synchronously.
-  \item A \textbf{Listener} is a function called asynchronously for each message in a stream.
-  \item A \textbf{Continuation} is a function called asynchronously once a result is available.
+  \item \textbf{Iterators} are functions called for each item in a set, often synchronously.
+  \item \textbf{Listeners} are functions called asynchronously for each message in a stream.
+  \item \textbf{Continuations} are functions called asynchronously once a result is available.
 \end{itemize}
 
+As we will see later, Promises are designed as placeholder for a unique outcome.
+Iterators and Listeners are invoked multiple times resulting in multiple outcomes.
+Only continuations are equivalent to Promises, or Dues.
+So, we focus on continuations in this paper.
+
 Callbacks are often mistaken for continuations ; callbacks are not inherently asynchronous, while continuations are.
-In this paper we only focus on continuations, because promises and dues are only equivalent to continuations.
-A continuation allows to control the sequentiality of asynchronous operations in the flow of execution.
-It is a function passed as an argument to allow the callee not to block the caller until its completion.
+In a synchronous paradigm, the sequentiality of the execution flow is trivial.
+An operation needs to complete before executing the next one.
+On the other hand, in an asynchronous paradigm, parallelism is trivial, operations are executed in parallel.
+The sequentiality of operations needs to be explicit.
+Continuations provide this control over \textbf{the sequentiality of the asynchronous execution flow}.
+
+A continuation is a function passed as an argument to allow the callee not to block the caller until its completion.
 The continuation is invoked later, at the termination of the callee to process the result as soon as possible and continue the execution ; hence the name continuation.
 The continuation approach is the functional way of addressing asynchronous call without external synchronization mechanism such as IPC.
 
 When using continuation, the convention on how to handle the result must be common for both the callee and the caller.
 In \textit{Node.js}, the signature of a continuation uses the \textit{error-first}\ftnt{https://docs.nodejitsu.com/articles/errors/what-are-the-error-conventions}\ftnt{http://programmers.stackexchange.com/questions/144089/different-callbacks-for-error-or-error-as-first-argument} convention.
 The first argument contains an error or \texttt{null} if no error occurred ; then follows the result.
-Listing \ref{lst:continuation} is a pattern of continuation.
-% Another convention is to provide two distinct functions to handle results and errors. 
-% The \texttt{my_fn} function is defined in listing \ref{lst:my-fn}.
+Listing \ref{lst:continuation} is a pattern of such a continuation.
+However, continuations don't inherently impose any convention.
+For example, In the browser, the major convention used for continuation is the\textit{error-first} convention.
 
 \begin{code}[js, %
              caption={Example of a continuation}, %
@@ -42,18 +50,21 @@ my_fn(input, function continuation(error, result) {
 % The continuation allows to continue the execution sequentially, after the result of \textit{my_fn} is available. 
 % When continuations are defined inside the call, like \textit{continuation}, the sequence of deferred execution results in an intricate imbrication of calls and continuations, like in listing \ref{lst:cbhell}.
 The callback hell occurs when many asynchronous calls are arranged to be executed sequentially.
+Each consecutive operation adds an indentation level, because it is nested inside the continuation of the previous operation.
 % That is when each caller must wait for the result before calling the next function.
-It produce a cascade of calls and function definitions, like in listing \ref{lst:cbhell}.
+It produce an imbrication of calls and function definitions, like in listing \ref{lst:cbhell}.
+Because of this nesting, we say that continuations lack the \textbf{chained composition} of multiple asynchronous operations.
 Promise allows to arrange such a sequence of asynchronous operations in a more readable way.
+
 
 \begin{code}[js, %
              caption={Example of a sequence of continuations}, %
              label={lst:cbhell}] %
-my_fn_1(input, function continuation(error, result) {
+my_fn_1(input, function cont(error, result) {
   if (!error) {
-    my_fn_2(result, function continuation(error, result) {
+    my_fn_2(result, function cont(error, result) {
       if (!error) {
-        my_fn_3(result, function continuation(error, result) {
+        my_fn_3(result, function cont(error, result) {
           if (!error) {
             console.log(result);
           } else {
@@ -76,13 +87,26 @@ my_fn_1(input, function continuation(error, result) {
 % Promise also provide few methods to enhance the asynchronous control flow tools\footnote{\texttt{all} and \texttt{race}}.
 % There is, in Javascript, numerous Promise implementations\footnote{37 different implementations in Javascript \url{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}}.
 
-This section is based on the Promises section of the specification in ECMAScript 6 Harmony\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} and the Promises page on the Mozilla Developer Network\ftnt{https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise}.
-The specification defines a promise as \textit{an object that is used as a placeholder for the eventual outcome of a deferred (and possibly asynchronous) computation.} (ECMAScript 6 Harmony Specification, section 25.4 Promise Objects)
+% This section is based on the Promises section of the specification in ECMAScript 6 Harmony\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} and the Promises page on the Mozilla Developer Network\ftnt{https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise}.
 
-A promise is an object returned by a function to represent its result.
-Because it is possibly unavailable synchronously, it still requires a continuation to defer the execution when the result is made available.
-A promise also requires another continuation to defer the execution in case of errors.
-These two continuations are passed to the \texttt{then} method of the promise, like illustrated in listing \ref{lst:then}.
+The specification\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} defines a promise as an object that is used as a placeholder for the eventual outcome of a deferred (and possibly asynchronous) computation.
+In a synchronous paradigm, the sequentiality of the execution flow is trivial.
+While in an asynchronous paradigm, this control is provided by continuations.
+A Promise is an object returned by a function to represent its result, this result being synchronously or asynchronously available.
+Promises provide a unified \textbf{control over the execution flow} for both paradigms.
+They expose a \texttt{then} method to define the continuation to execute with the - possibly asynchronous - result.
+
+% However, unlike continuations, the Promises specification imposes a convention on how to handle the result.
+% Because it is possibly unavailable synchronously, it still requires a continuation to defer the execution when the result is made available.
+% A promise requires two continuations to defer the execution in case of errors.
+% These two continuations are passed to the \texttt{then} method of the promise, like illustrated in listing \ref{lst:then}.
+
+Promises include another control over the execution flow.
+They call a different function according to the outcome of the operation, one to continue the execution with the result, or the other to handle errors.
+This \textbf{conditional execution} is indivisible from the Promise structure.
+On the other hand, classic continuations leave this conditional execution to the developer.
+As a result of this difference, Promises and continuations use two different conventions to handle errors and results.
+The two conventions are illustrated in listings \ref{lst:continuation} and \ref{lst:then}.
 
 \begin{code}[js, %
              caption={Example of a promise}, %
@@ -96,16 +120,21 @@ promise.then(function onSuccess(result) {
 });
 \end{code}
 
+As explained in section \ref{section:definitions:continuation}, continuations lack the \textbf{chained composition} of multiple asynchronous operations
 Promises are specified as to arrange successions of asynchronous operations as a chain of continuations, by opposition to the imbrication of continuations illustrated in listing \ref{lst:cbhell}.
-To allow cascading, the method \texttt{then} returns a promise which resolves when the promise returned by its continuation resolves.
-This is illustrated in listing \ref{lst:promises-sequence}.
+The \texttt{then} method synchronously returns a Promise linked with the Promise asynchronously returned by its continuation.
+This link allow to compose \textbf{chains} of asynchronous operations.
+That is to arrange them, one operation after the other, in the same indentation level.
+The Promises syntax is more concise, also more readable because it is closer to the familiar synchronous paradigm.
+
+The listing \ref{lst:promises-sequence} illustrates this chained composition.
 The functions \texttt{my_fn_2} and \texttt{my_fn_3} return promises when they are executed, asynchronously.
-Because these promises are not available synchronously, the method \texttt{then} returns an intermediary Promise.
-The latter resolves only when the formers resolve.
+Because these promises are not available synchronously, the method \texttt{then} returns intermediary Promises.
+The latter resolve only when the former resolve.
 This behavior allows to arrange the continuations in a flat chain of calls, instead of an imbrication of calls and continuations.
 
 \begin{code}[js, %
-             caption={Example of a chain of promise}, %
+             caption={The chain of Promises is more concise than an imbrication of callbacks}, %
              label={lst:promises-sequence}] %
 my_fn_1(input)
 .then(my_fn_2, onError)
@@ -121,16 +150,16 @@ function onError(error) {
 
 In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 An operation needs to complete before executing the next one.
-On the other hand, in an asynchronous paradigm this sequentiality needs to be explicit to allow parallelism.
-Promises and continuations provide this control over \textbf{the sequentiality of the execution flow}.
+On the other hand, in an asynchronous paradigm, parallelism is trivial, while this sequentiality needs to be explicit.
+Promises and continuations provide this control over \textbf{the sequentiality of the asynchronous execution flow}.
 It allows to explicitly arrange the execution of asynchronous operations one after the other, and declare a relation of causality between two operations.
 
-As explained in section \ref{definitions:continuation}, continuations are invoked to hand back the result and continue the execution at the end of a asynchronous operation.
+As explained in section \ref{section:definitions:continuation}, continuations are invoked to hand back the result and continue the execution at the end of an asynchronous operation.
 To arrange a sequence of asynchronous operations with continuations, they are nested one in the continuation of the previous, as illustrated in listing \ref{lst:cbhell}.
 When the continuation is a function declared \textit{in situ}, each asynchronous operation adds a nesting level.
 Because of this nesting, we say that continuations lack the \textbf{chained composition} of multiple asynchronous operations.
 
-Promises on the other hand, provides this chained composition, as illustrated in listing \ref{lst:promises-sequence}.
+As illustrated in listing \ref{lst:promises-sequence}, Promises provides this chained composition.
 As detailed in section \ref{section:definitions:promise}, the \texttt{then} method synchronously returns a Promise linked with the Promise asynchronously returned by its continuation.
 This link allow to compose \textbf{chains} of asynchronous operations.
 That is to arrange them, one operation after the other, in the same indentation level.
@@ -143,7 +172,7 @@ On the other hand, classic continuations leave this conditional execution to the
 As a result of this difference, Promises and continuations use two different conventions to handle errors and results.
 The two conventions are illustrated in listings \ref{lst:continuation} and \ref{lst:then}.
 
-We focus on the transformation of \textbf{the sequentiality of the execution flow}, but not on the transformation of the conditional execution.
+We focus on the transformation of \textbf{the sequentiality of the execution flow}, but not on the extraction of the conditional execution.
 We introduce in section \ref{section:due} a new specification, Dues.
 They bring the same chained composition than Promises, while leaving the conditional execution to the developer, like continuations.
 
@@ -204,21 +233,21 @@ They bring the same chained composition than Promises, while leaving the conditi
 We present an alternative to Promises called \textit{Due}.
 Like Promises, a Due is an object that is used as a placeholder for the eventual outcome of a deferred computation.
 Unlike Promises, and like continuations, Dues leave to the developer the control of the conditional execution over the result.
-The method \texttt{then} of a due expects only one continuation, following the convention \textit{error-first}.
+While a promise expects two continuations, \texttt{onSuccess} and \texttt{onErrors}, the method \texttt{then} of a due expects only one continuation, following the convention \textit{error-first}.
 % \footnotemark{\ref{ftn:error-conventions}}
 % \footnotemark{\ref{ftn:error-first}}.
-While a promise expects two continuations, \texttt{onSuccess} and \texttt{onErrors}. 
 
 A Due object is in one of two mutually exclusive states: settled or pending.
 At its creation, the due expects a callback containing the deferred computation.
 This callback is called synchronously with the function \texttt{settle} as argument.
 The latter is invoked, potentially asynchronously, to settle the due.
-The due exposes a \texttt{then} method expecting a continuation to continue the execution after its settlement.
+Dues expose a \texttt{then} method expecting a continuation to continue the execution after its settlement.
 To allow chained composition, the method \texttt{then} returns a Due linked with the due returned by its continuations.
+The definition of \texttt{my\_fn} function, in listing \ref{lst:my-fn} illustrate the creation of two Dues, with synchronous and asynchronous deferred computation.
 
 \begin{code}[js, %
              caption={Example of a due}, %
-             label={lst:then}] %
+             label={lst:due}] %
 var due = my_fn(input)
 
 due.then(function continuation(error, result) {
@@ -230,10 +259,10 @@ due.then(function continuation(error, result) {
 });
 \end{code}
 
-In listing \ref{lst:then}, \texttt{due} is settled when the function \texttt{settle} is called.
+% In listing \ref{lst:due}, \texttt{due} is settled when the function \texttt{settle} is called.
 If \texttt{due} is settled, a call to \texttt{due.then(onSettlement)} immediately call the function \texttt{onSettlement}.
 A due is pending if it is not settled.
-A due is resolved if it is settled or if it has been locked in to match the state of another due.
+A due is resolved if it is settled or if it has been linked with another due.
 Attempting to settle a resolved due has no effect.
 A resolved due may be pending or settled, while an unresolved due is always in the pending state.
 The \texttt{Due} object only exposes the \texttt{then} method.
