@@ -6,11 +6,11 @@ A callback is a function passed a as a parameter to a function call.
 It is invoked by the callee to continue the execution with arguments not available in the caller context.
 We distinguish three kinds of callbacks.
 
-\begin{itemize}
-  \item \textbf{Iterators} are functions called for each item in a set, often synchronously.
-  \item \textbf{Listeners} are functions called asynchronously for each message in a stream.
-  \item \textbf{Continuations} are functions called asynchronously once a result is available.
-\end{itemize}
+\begin{description}
+  \item[Iterators] are functions called for each item in a set, often synchronously.
+  \item[Listeners] are functions called asynchronously for each message in a stream.
+  \item[Continuations] are functions called asynchronously once a result is available.
+\end{description}
 
 As we will see later, Promises are designed as placeholder for a unique outcome.
 Iterators and Listeners are invoked multiple times resulting in multiple outcomes.
@@ -22,18 +22,17 @@ In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 An operation needs to complete before executing the next one.
 On the other hand, in an asynchronous paradigm, parallelism is trivial, operations are executed in parallel.
 The sequentiality of operations needs to be explicit.
-Continuations provide this control over \textbf{the sequentiality of the asynchronous execution flow}.
+Continuations are the functional way of providing this control over \textbf{the sequentiality of the asynchronous execution flow}.
 
-A continuation is a function passed as an argument to allow the callee not to block the caller until its completion.
+A \textbf{continuation} is a function passed as an argument to allow the callee not to block the caller until its completion.
 The continuation is invoked later, at the termination of the callee to process the result as soon as possible and continue the execution ; hence the name continuation.
-The continuation approach is the functional way of addressing asynchronous call without external synchronization mechanism such as IPC.
 
-When using continuation, the convention on how to handle the result must be common for both the callee and the caller.
+When using continuation, the convention on how to hand back the result must be common for both the callee and the caller.
 In \textit{Node.js}, the signature of a continuation uses the \textit{error-first}\ftnt{https://docs.nodejitsu.com/articles/errors/what-are-the-error-conventions}\ftnt{http://programmers.stackexchange.com/questions/144089/different-callbacks-for-error-or-error-as-first-argument} convention.
 The first argument contains an error or \texttt{null} if no error occurred ; then follows the result.
 Listing \ref{lst:continuation} is a pattern of such a continuation.
-However, continuations don't inherently impose any convention.
-For example, In the browser, the major convention used for continuation is the\textit{error-first} convention.
+However, continuations don't inherently impose any conventions.
+For example, other conventions are used in the browser.
 
 \begin{code}[js, %
              caption={Example of a continuation}, %
@@ -54,7 +53,7 @@ Each consecutive operation adds an indentation level, because it is nested insid
 % That is when each caller must wait for the result before calling the next function.
 It produce an imbrication of calls and function definitions, like in listing \ref{lst:cbhell}.
 Because of this nesting, we say that continuations lack the \textbf{chained composition} of multiple asynchronous operations.
-Promise allows to arrange such a sequence of asynchronous operations in a more readable way.
+Promise allows to arrange such a sequence of asynchronous operations in a more concise and readable way.
 
 
 \begin{code}[js, %
@@ -92,9 +91,9 @@ my_fn_1(input, function cont(error, result) {
 The specification\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} defines a promise as an object that is used as a placeholder for the eventual outcome of a deferred (and possibly asynchronous) computation.
 In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 While in an asynchronous paradigm, this control is provided by continuations.
-A Promise is an object returned by a function to represent its result, this result being synchronously or asynchronously available.
+A Promise is an object returned by a function to represent its result ; this result being synchronously or asynchronously available.
 Promises provide a unified \textbf{control over the execution flow} for both paradigms.
-They expose a \texttt{then} method to define the continuation to execute with the - possibly asynchronous - result.
+They expose a \texttt{then} method which expects a continuation to continue with the result.
 
 % However, unlike continuations, the Promises specification imposes a convention on how to handle the result.
 % Because it is possibly unavailable synchronously, it still requires a continuation to defer the execution when the result is made available.
@@ -102,11 +101,12 @@ They expose a \texttt{then} method to define the continuation to execute with th
 % These two continuations are passed to the \texttt{then} method of the promise, like illustrated in listing \ref{lst:then}.
 
 Promises include another control over the execution flow.
-They call a different function according to the outcome of the operation, one to continue the execution with the result, or the other to handle errors.
+According to the outcome of the operation, they call one function to continue the execution with the result, or another to handle errors.
 This \textbf{conditional execution} is indivisible from the Promise structure.
-On the other hand, classic continuations leave this conditional execution to the developer.
-As a result of this difference, Promises and continuations use two different conventions to handle errors and results.
-The two conventions are illustrated in listings \ref{lst:continuation} and \ref{lst:then}.
+As a result, Promises impose a convention on how to hand back the outcome of the deferred computation.
+As explained in section \ref{section:definition:continuation}, classic continuations leave this conditional execution to the developer.
+% As a result of this difference, Promises and continuations use two different conventions to handle errors and results.
+% The two conventions are illustrated in listings \ref{lst:continuation} and \ref{lst:then}.
 
 \begin{code}[js, %
              caption={Example of a promise}, %
@@ -120,18 +120,18 @@ promise.then(function onSuccess(result) {
 });
 \end{code}
 
-As explained in section \ref{section:definitions:continuation}, continuations lack the \textbf{chained composition} of multiple asynchronous operations
-Promises are specified as to arrange successions of asynchronous operations as a chain of continuations, by opposition to the imbrication of continuations illustrated in listing \ref{lst:cbhell}.
+Promises are designed to fill the lack of chained composition from continuations.
+They allow to arrange successions of asynchronous operations as a chain of continuations, by opposition to the imbrication of continuations illustrated in listing \ref{lst:cbhell}.
 The \texttt{then} method synchronously returns a Promise linked with the Promise asynchronously returned by its continuation.
 This link allow to compose \textbf{chains} of asynchronous operations.
 That is to arrange them, one operation after the other, in the same indentation level.
-The Promises syntax is more concise, also more readable because it is closer to the familiar synchronous paradigm.
 
 The listing \ref{lst:promises-sequence} illustrates this chained composition.
 The functions \texttt{my_fn_2} and \texttt{my_fn_3} return promises when they are executed, asynchronously.
 Because these promises are not available synchronously, the method \texttt{then} returns intermediary Promises.
 The latter resolve only when the former resolve.
-This behavior allows to arrange the continuations in a flat chain of calls, instead of an imbrication of calls and continuations.
+This behavior allows to arrange the continuations as a flat chain of calls, instead of an imbrication of continuations.
+The Promises syntax is more concise, also more readable because it is closer to the familiar synchronous paradigm.
 
 \begin{code}[js, %
              caption={The chain of Promises is more concise than an imbrication of callbacks}, %
