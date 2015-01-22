@@ -26,7 +26,7 @@ It is now a rich application platform, pervasive, and accessible almost everywhe
 This transformation began in Netscape 2.0 with the introduction of Javascript, a web scripting language.
 
 Javascript was originally designed for the manipulation of a graphical environment : the Document Object Model (DOM\ftnt{http://www.w3.org/DOM/}).
-Functions are first class-citizens ; it allows to manipulate them like any object, and to link them to react to asynchronous events, \textit{e.g.} user inputs, remote requests.
+Functions are first class-citizens ; it allows to manipulate them like any object, and to link them to react to asynchronous events, \textit{e.g.} user inputs and remote requests.
 These asynchronously triggered functions are named callback, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the Internet.
 This made Javascript a language of choice to develop both client and, more recently, server applications for the web.
 
@@ -41,7 +41,7 @@ They fulfill this task well enough to be part of the next version of the Javascr
 However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough, and start their code with the classical Javascript callback approach.
 Moreover, despite its benefits, the concept of Promise is not yet widely acknowledged.
 Developers may implement their own library for asynchronous flow control before discovering existing ones, like Promises.
-There is such a disparity between the needs for and the acknowledgment of Promises, that there is almost 40 different \textit{known} implementations\ftnt{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}.
+There is such a disparity between the needs for and the acknowledgment of Promises, that there is almost 40 different implementations\ftnt{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}.
 % TODO reformulate this sentence.
 
 With the coming introduction of Promise as a language feature, we expect an increase of interest, and believe that many developers will shift to this better practice.
@@ -53,7 +53,7 @@ Callbacks, on the other hands, leave this conditional control to the developer.
 This paper focuses on the transformation of the control of the asynchronous execution flow from callbacks to Promises.
 We introduce a new specification, called Dues, essentially similar to Promises, but leaving unchanged the conditional control.
 This approach enables us to compile legacy Javascript code from code repository and brings a first automated step toward full Promises integration.
-This simple and pragmatic compiler has been tested over \textit{n} Github repository, \textit{k} with success.
+This simple and pragmatic compiler has been tested over \textit{n} Github repositories, \textit{k} with success. \comment{todo}
 
 In section \ref{section:definitions} we define callbacks and Promises.
 We then introduce Dues in section \ref{section:due}.
