@@ -1,5 +1,13 @@
 \section{Compiler} \label{section:compiler}
 
+\comment{TODO insert that}\\
+We expect developers to have a limited control over the implementation of the callee.
+In \textit{Node.js}, asynchronous functions are either part of the \textit{Node.js} API like \texttt{fs}, or wrapper from libraries like \texttt{express}.
+Instead of modifying the implementation of the callee, we propose to wrap it inside a function which transform its signature, leaving the semantic intact.
+The \texttt{due} library provides such a wrapper : \texttt{mock}.
+
+
+
 We explain in this section the compilation process.
 The compiler transform asynchronous call with continuation to make them compatible with due.
 This process flatten a continuation pyramid into a cascading sequence of call to \texttt{then}.

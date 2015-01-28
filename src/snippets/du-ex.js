@@ -1,4 +1,4 @@
-var my_fn = require('./my_fn').async;
+var my_fn = require('./my_fn');
 
 var arg = '1';
 

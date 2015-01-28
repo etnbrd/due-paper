@@ -27,7 +27,7 @@ This transformation began in Netscape 2.0 with the introduction of Javascript, a
 
 Javascript was originally designed for the manipulation of a graphical environment : the Document Object Model (DOM\ftnt{http://www.w3.org/DOM/}).
 Functions are first class-citizens ; it allows to manipulate them like any object, and to link them to react to asynchronous events, \textit{e.g.} user inputs and remote requests.
-These asynchronously triggered functions are named callback, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the Internet.
+These asynchronously triggered functions are named callbacks, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the Internet.
 This made Javascript a language of choice to develop both client and, more recently, server applications for the web.
 
 Callbacks are well suited for small interactive scripts.
@@ -40,7 +40,7 @@ Promises bring a different way to control the asynchronous execution flow, bette
 They fulfill this task well enough to be part of the next version of the Javascript language.
 However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough, and start their code with the classical Javascript callback approach.
 Moreover, despite its benefits, the concept of Promise is not yet widely acknowledged.
-Developers may implement their own library for asynchronous flow control before discovering existing ones, like Promises.
+Developers may implement their own library for asynchronous flow control before discovering existing ones.%, like Promises.
 There is such a disparity between the needs for and the acknowledgment of Promises, that there is almost 40 different implementations\ftnt{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}.
 % TODO reformulate this sentence.
 
@@ -49,15 +49,16 @@ In this paper, we propose a compiler to automate this shift in existing code bas
 We present the transformation from an imbrication of callbacks to a sequence of Promise operations, while preserving the semantic.
 
 Promises bring a better way to control the asynchronous execution flow, but they also impose a conditional control over the result of the execution.
-Callbacks, on the other hands, leave this conditional control to the developer.
-This paper focuses on the transformation of the control of the asynchronous execution flow from callbacks to Promises.
-We introduce a new specification, called Dues, essentially similar to Promises, but leaving unchanged the conditional control.
-This approach enables us to compile legacy Javascript code from code repository and brings a first automated step toward full Promises integration.
-This simple and pragmatic compiler has been tested over \textit{n} Github repositories, \textit{k} with success. \comment{todo}
+Callbacks, on the other hand, leave this conditional control to the developer.
+This paper focuses on the transformation from imbrication of callbacks to chain of Promises.
+To avoid unnecessary modifications on this conditional control, we introduce an alternative to Promises leaving this conditional control to the developer, like callbacks.
+We call this alternative specification Dues.
+This approach enables us to compile legacy Javascript code from repositories and brings a first automated step toward full Promises integration.
+This simple and pragmatic compiler has been tested over \textit{n} Github repositories, \textit{k} of which with success. \comment{todo}
 
 In section \ref{section:definitions} we define callbacks and Promises.
 We then introduce Dues in section \ref{section:due}.
-In section \ref{section:equivalences}, we explain the transformation from callback imbrications to dues sequences.
+In section \ref{section:equivalence}, we explain the transformation from callback imbrications to dues sequences.
 In section \ref{section:compiler}, we present an implementation of this transformation.
 In section \ref{section:evaluation}, we evaluate this compiler.
 We present related works in section \ref{section:related}, and finally conclude in section \ref{section:conclusion}.
