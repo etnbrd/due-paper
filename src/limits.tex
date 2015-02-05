@@ -4,31 +4,32 @@
 
 For this demonstration to be reasonable, we intentionally restricted it to continuations expressed as \textit{Function Expression}, following the \textit{error-first} convention.
 The automation of this equivalence exposes some other limitations in corner cases.
-We explain in the next paragraph four compilation steps with their limitations and the choices made to address them.
+We explain in the next paragraphs four compilation steps with their limitations and the choices made to address them.
 
 \subsection{Continuations}
 
 \subsubsection{Identification}
 
 The equivalence is applicable only on continuations.
-The first compilation step is to identify a continuation from a callback.
-A continuation is a callback invoked by a callee \textit{a)} only once, and \textit{b)} asynchronously.
+The first compilation step is to identify the continuations among the callbacks.
+A continuation is a callback invoked \textit{a)} only once, and \textit{b)} asynchronously.
 % The difference resides in the invocation, not in the definition.
 
 \paragraph{a)}
 A Due is a placeholder for a single outcome.
-It is unable to hold the different results returned by an iterator or a listener.
-Dues only replace continuations.
+It is unable to hold the different results returned by the multiple invocations of an iterator or a listener.
+Dues replace only continuations.
 
 \paragraph{b)}
 Dues are designed to unify the control over both the synchronous, and asynchronous execution flow.
 The synchronous equivalent of a continuation is uncommon, but not impossible.
-A callee might use a callback to synchronously continue the execution, for example with data privately accessible.
-So, a developer could wrap this function to return a Due instead.
-However, the compiler is unable to transform an imbrication of synchronous callbacks into a chain of Dues.
-The execution order might change.
-A synchronous continuation is executed within the callee, before the following instruction.
-In the equivalent chain of Dues, the synchronous continuation is executed after this following instruction.
+% A callee might use a callback to synchronously continue the execution, for example with data privately accessible.
+% So, a developer could wrap this function to return a Due instead.
+% However, the compiler is unable to transform an imbrication of synchronous callbacks into a chain of Dues.
+However the equivalence is unsound when transforming an imbrication of callees invoking their callbacks synchronously.
+The execution order changes.
+A synchronous continuation is executed before the instructions following the callee.
+In the equivalent chain of Dues, the synchronous continuation is executed after these following instructions.
 
 Spotting a continuation implies to identify that the callee invokes its callback asynchronously, and only once.
 There is no syntactical difference between a synchronous and an asynchronous callee.
@@ -37,9 +38,9 @@ Therefore, the identification of continuations is necessarily based on semantica
 
 \subsubsection{Composition}
 
-Moreover, some uncommon continuations are not compatible with this equivalence.
+Moreover, some uncommon continuations are not compatible with the composition of this equivalence.
 For the chained composition to be possible, the parent continuation must return the Due returned by the nested asynchronous function.
-This Due is linked internally to the next continuation.
+This Due is then linked internally to the next continuation.
 The modifications to retrieve and return this Due is sound only if it takes place in classic situations.
 In \textit{Node.js}, continuations are triggered as the root of a new call stack.
 There is no caller waiting for a result to be returned to.
@@ -47,18 +48,18 @@ The only purpose of a \textit{Return Statement} is to control the execution flow
 Since it should not return any significant value, we assume it is safe for a continuation to return a Due.
 
 Similarly, classic asynchronous functions do not synchronously return any significant value.
-Indeed, the result of an asynchronous operation is available only asynchronously.
+The result of an asynchronous operation is available only asynchronously.
 Therefore, we assume it is safe for those functions to return a Due.
 
-In common cases, these two assumptions are verified and the equivalence is sound.
+These two assumptions are verified and the equivalence is sound in most common cases.
 However, the previous assumptions are false in some uncommon cases.
-For example, the asynchronous function \texttt{SetTimeout} returns an identifier pointing to the created timer.
+For example, the asynchronous function \texttt{SetTimeout} returns an identifier pointing to the created timer, so it cannot return the Due expected to continue the chain..
 
-Identifying compatible continuations means differentiating synchronous from asynchronous functions, and detecting return values.
+Identifying compatible continuations means differentiating synchronous from asynchronous functions, enumerating the callbacks invocations and detecting return values.
 The compiler would need to have a deep understanding of the control and data flows of the program.
 Because of the highly dynamic nature of Javascript, this understanding is either unsound, limited, or complex.
 For these reasons, we leave to the developer the identification of compatible continuations among the identified callbacks.
-They are expected to know the limitations of this compiler, and be able to identify a compatible continuation from a callback.
+They are expected to understand the limitations of this compiler, and the semantic of the code to compile.
 % The compiler ask the developer for each detected callback, to assure it is a continuation compatible with the equivalence.
 
 Because of this interaction, the compilation process is not automatic at an individual scale.
@@ -72,36 +73,32 @@ In future works, we would like to study the possibility of easing the compilatio
 
 The second compilation step is to identify imbrications of continuations.
 A Javascript program is structured as a tree of functions definitions nested one in its parent.
-An imbrication of continuations is a subtree of this tree.
+An imbrication of continuations is a subtree in this tree.
 A continuation is a leaf only if its direct parent is also a continuation.
 Otherwise, it is the root of a tree.
 
 A tree of continuations can not contain a loop, nor a function definition that is not a continuation.
-Both modify the linearity of the execution flow.
-The application of the equivalence might modify the semantic.
+Both modify the linearity of the execution flow which is required for the equivalence to keep the semantic.
 Indeed, a call nested inside a loop might return multiple Dues, while only one is returned to continue the chain.
 And a call nested inside a function definition is unable to return the Due to continue the chain.
-However, a conditional branch leaves the semantic intact.
-If the nested asynchronous function is not called, no Due needs to be returned, as the chain is broken.
-\comment{more about this, it might need specific paragraphs, and listings}
+On the other hand, conditional branching leaves the execution linearity and the semantic intact.
+If the nested asynchronous function is not called, no Due needs to be returned, as the chain is expected stop its execution.
 
-Th compositions of continuations and Dues are arranged differently.
-Continuation can nest multiple child, they are arranged as a tree, while Dues are arranged as a chain.
+The compositions of continuations and Dues are arranged differently.
+Continuations can nest multiple children, they are arranged as a tree, while Dues are arranged as a chain.
 The compiler trims each tree of continuations to get chains to translate into Dues.
 If a continuation has more than one child, the compiler try to find a legitimate child to continue the chain.
 The legitimate child is the only parent among its siblings.
-If there is several parents among the siblings, then none are the legitimate child.
-The non legitimate child start a new tree.
-\comment{reformulate}
+If there is several parents among the children, then none are the legitimate child.
+The non legitimate children start a new tree.
 
-The result is multiple chains of continuations assured to be transformable into a sequence of Dues.
-However, this transformation modifies the scopes organization.
-This limitation is addressed in the next section.
+From this step, results chains of continuations assured to be transformable into sequences of Dues.
+However, this transformation modifies the scopes organization which is addressed in the next section.
 
 \subsection{Scope disjunction} \label{section:limits:disjunction}
 
 The third compilation step is to assure the availability of identifiers after the manipulation.
-In listing \ref{lst:ct-seq}, because the definitions of \texttt{cont1} and \texttt{cont2} are overlapping, and so are their scopes\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-lexical-environments}.
+In listing \ref{lst:ct-seq}, the definitions of \texttt{cont1} and \texttt{cont2} are overlapping, so are their scopes\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-lexical-environments}.
 The function \texttt{cont1} shares its identifiers with \texttt{cont2}.
 In listing \ref{lst:du-seq}, the definitions of \texttt{cont1} and \texttt{cont2} are siblings, they have disjoint scopes.
 The manipulation changes the hierarchy of scopes, it modifies the semantic.
@@ -110,7 +107,7 @@ To keep the semantic intact, the scopes needs to be disjoints before the manipul
 
 Javascript exposes two built-in functions that dynamically modify scopes : \texttt{eval} and \texttt{with}.
 To avoid dynamical modifications, we consider the subset of Javascript excluding these two built-in functions.
-This subset is statically scoped at the function level, it is possible to infer the scope of identifiers before run time.
+This subset is statically scoped at the function level, it is possible to infer the scope of identifiers statically.
 
 An identifier is in the scope of its defining function and all its descendants.
 We define two scopes as disjoints if none reference an identifier defined inside the other.
@@ -137,31 +134,19 @@ If there is a conflict with another variable in this root scope, it is necessary
 As seen in listing \ref{lst:due-creation} section \ref{section:definitions:due}, a function returning a Due is simply a wrapping of a function expecting a continuation.
 The fourth compilation step is to wrap the callee function to return a Due.
 % The compiler wrap the asynchronous function in a function returning a Due.
-The \texttt{due} library provides such a wrapper : \texttt{mock}.
+The \texttt{due} library already provides such a wrapper, the \texttt{mock} function.
 
-It is a convoluted process to wrap an unknown function while conserving the semantic.
-The compiler wrap this function inline, so as to impact the semantic a minimum.
-
-The \texttt{mock} function is accessible from the \texttt{due} package : \texttt{require('due').mock}.
-In Javascript, a function call is associated with a context, accessible through the \texttt{this} keyword.
-Functions are invoked with the global context.
-However, methods are invoked with their owner as context.
+% It is a convoluted process to wrap an unknown function while conserving the semantic.
+To impact the semantic a minimum, the compiler wrap function calls inline.
+% The \texttt{mock} function is accessible from the \texttt{due} package : \texttt{require('due').mock}.
+In Javascript, a function call is invoked in a context accessible through the \texttt{this} keyword.
+Functions are invoked in the global context, while methods are invoked in the context of their owner.
 In lisitng \ref{lst:mock}, the object \texttt{my_obj} is initialized with the method \texttt{my_mth} which wrap the function \texttt{my_fn}.
-Line \ref{lst:mock:mock}, the method \texttt{mock} return a function wrapping the method \texttt{my_obj.my_mth}.
-This function is then called with \texttt{my_obj} as context, to preserve the semantic of the call to \texttt{my_obj.my_mth}.
-
-However, it is not possible, with this transformation to mock complex asynchronous call, such as IIFE.
-
-The callee of a call expression can be :
-
-A \textit{MemberExpression} or an \textit{Identifier}
-A \textit{CallExpression} returning a function, or a property pointing to a function.
-
-The compiler is limited to the first case.
-In the second case, because the reference to \texttt{my_obj} is doubled, it can not be an evaluation, or the semantic would be modified.
+Line \ref{lst:mock:mock}, the method \texttt{mock} returns a function wrapping the method \texttt{my_obj.my_mth}.
+This function is then called, line \ref{lst:mock:call}, with \texttt{my_obj} as context and \texttt{input} as argument, to preserve the semantic of the call to \texttt{my_obj.my_mth}.
 
 \begin{code}[js, %
-             caption={Result of the transformation of the}, %
+             caption={Inline mock of the callee}, %
              label={lst:mock}] %
 my_obj = {
   my_mth: function(input, cont) {
@@ -170,11 +155,24 @@ my_obj = {
   my_self: 'self'
 }
 
+my_obj.my_mth(input, continuation);
+
 require("due")
 .mock(my_obj.my_mth) //@\label{lst:mock:mock}@
 .call(my_obj, input) //@\label{lst:mock:call}@
-.then(function cont)
+.then(continuation);
 \end{code}
+
+% However, it is not possible, with this transformation to mock complex asynchronous call, such as IIFE.
+This transformation is simple and sound for a limited subset of callees.
+The callee of a call expression can be
+\begin{itemize}
+  \item a \textit{MemberExpression} or an \textit{Identifier}, or
+  \item a \textit{CallExpression} returning a function, or a property pointing to a function.
+\end{itemize}
+In the second case, the semantic would be modified by the double evaluation of the context, \texttt{my_obj}.
+For example, in the case of this owner being an \textit{Immediately Invoked Function Expression}, this \textit{IIFE}, would be evaluated twice, line \ref{lst:mock:mock} and \ref{lst:mock:call}.
+
 
 
 

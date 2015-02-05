@@ -84,13 +84,13 @@ To summarize the specification, these \textit{Expressions} possibly return a fun
   \item a \textit{NewExpression} creating a new function,
 \end{itemize}
 
-\textbf{We focus only on continuations expressed as \textit{Function Expressions}}.
+We focus only on continuations expressed as \textit{Function Expressions}.
 For other types of continuations, the manipulation is either irrelevant, or unsound.
 Respectively, either the continuation prevent nesting, or its evaluation causes side-effects.
 For example, when using \textit{Identifiers}, it is impossible to nest continuations, the equivalence would be irrelevant.
 When using \textit{Immediately-Invoked Function Expression} (IIFE), a common pattern to return a closure, the manipulation is unsound.
-Before the manipulation, the evaluation of this expression would occur \textbf{before} the call to \texttt{my_fn}.
-While, after the manipulation, it would occur \textbf{after} the call to \texttt{my_fn}.
+Before the manipulation, the evaluation of this expression would occur before the call to \texttt{my_fn}.
+While, after the manipulation, it would occur after the call to \texttt{my_fn}.
 The manipulation would prevent side-effects from happening before the call to \texttt{my_fn}.
 The manipulation is \textit{sound} and relevant only when manipulating \textit{FunctionExpression}.
 

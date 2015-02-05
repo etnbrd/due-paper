@@ -15,16 +15,16 @@ We distinguish three kinds of callbacks.
 As we will see later, Promises are designed as placeholders for a unique outcome.
 Iterators and Listeners are invoked multiple times resulting in multiple outcomes.
 Only continuations are equivalent to Promises.
-Therefore, \textbf{we focus on continuations} in this paper.
+Therefore, we focus on continuations in this paper.
 
 Callbacks are often mistaken for continuations ; the former are not inherently asynchronous while the latter are.
 In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 An operation needs to complete before executing the next one.
 On the other hand, in an asynchronous paradigm, parallelism is trivial, operations are executed in parallel by default.
 The sequentiality of operations needs to be explicit.
-Continuations are the functional way of providing this control over \textbf{the sequentiality of the asynchronous execution flow}.
+Continuations are the functional way of providing this control over the sequentiality of the asynchronous execution flow.
 
-A \textbf{continuation} is a function passed as an argument to allow the callee not to block the caller until its completion.
+A continuation is a function passed as an argument to allow the callee not to block the caller until its completion.
 The caller is able to continue the execution with other operations in parallel.
 The continuation is invoked later, at the termination of the callee to continue the execution as soon as possible and process the result ; hence the name continuation.
 It provides a necessary control over the asynchronous execution flow.
@@ -57,7 +57,7 @@ The callback hell occurs when many asynchronous calls are arranged to be execute
 Each consecutive operation adds an indentation level, because it is nested inside the continuation of the previous operation.
 % That is when each caller must wait for the result before calling the next function.
 It produces an imbrication of calls and function definitions, like in listing \ref{lst:cbhell}.
-We say that continuations lack the \textbf{chained composition} of multiple asynchronous operations.
+We say that continuations lack the chained composition of multiple asynchronous operations.
 Promises allow to arrange such a sequence of asynchronous operations in a more concise and readable way.
 
 
@@ -95,8 +95,8 @@ my_fn_1(input, function cont(error, result) {
 
 In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 While in an asynchronous paradigm, this control is provided by continuations.
-Promises provide a unified \textbf{control over the execution and data flow} for both paradigms.
-The specification\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} defines a \textbf{Promise} as an object that is used as a placeholder for the eventual outcome of a deferred (and possibly asynchronous) operation.
+Promises provide a unified control over the execution and data flow for both paradigms.
+The specification\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} defines a Promise as an object that is used as a placeholder for the eventual outcome of a deferred (and possibly asynchronous) operation.
 % A Promise is an object returned by a function to represent its result
 Promises expose a \texttt{then} method which expects a continuation to continue with the result ; this result being synchronously or asynchronously available.
 
@@ -107,7 +107,7 @@ Promises expose a \texttt{then} method which expects a continuation to continue 
 
 Promises force another control over the execution flow.
 According to the outcome of the operation, they call one function to continue the execution with the result, or another to handle errors.
-This \textbf{conditional execution} is indivisible from the Promise structure.
+This conditional execution is indivisible from the Promise structure.
 As a result, Promises impose a convention on how to hand back the outcome of the deferred computation, while classic continuations leave this conditional execution to the developer.
 % As a result of this difference, Promises and continuations use two different conventions to handle errors and results.
 % The two conventions are illustrated in listings \ref{lst:continuation} and \ref{lst:then}.
@@ -126,7 +126,7 @@ promise.then(function onSuccess(result) {
 
 % Continuations lack the chained composition of asynchronous operations.
 Promises are designed to fill the lack of chained composition from continuations.
-They allow to arrange successions of asynchronous operations as a \textbf{chain of continuations}, by opposition to the imbrication of continuations illustrated in listing \ref{lst:cbhell}.
+They allow to arrange successions of asynchronous operations as a chain of continuations, by opposition to the imbrication of continuations illustrated in listing \ref{lst:cbhell}.
 That is to arrange them, one operation after the other, in the same indentation level.
 % The \texttt{then} method synchronously returns a Promise linked with the Promise asynchronously returned by its continuation.
 % This link allow to compose chains of asynchronous operations.
@@ -159,8 +159,8 @@ In this sense, Promises are comparable to the data-flow programming paradigm.
 
 \subsection{From Continuation to Promise} \label{seciton:definitions:analysis}
 
-As detailed in the previous sections, continuations provide the control over \textbf{the sequentiality of the asynchronous execution flow}.
-Promises improve this control to allow \textbf{chained compositions}, and unify the syntax for the synchronous and asynchronous paradigm.
+As detailed in the previous sections, continuations provide the control over the sequentiality of the asynchronous execution flow.
+Promises improve this control to allow chained compositions, and unify the syntax for the synchronous and asynchronous paradigm.
 This chained composition brings a greater clarity and expressiveness to source codes.
 At the light of these insights, it makes sense for a developer to switch from continuations to Promises.
 However, the refactoring of existing code bases might be an operation impossible to carry manually within reasonable time.
@@ -195,7 +195,7 @@ Indeed, in the browser, each library seems to provide its own convention.
 
 In this paper, we are interested in the transformation from imbrications to chains, not from one convention to another.
 The \textit{error-first} convention, used in \textit{Node.js}, is likely to represent a large, coherent code base to test the equivalence over.
-For this reason, \textbf{we focus only on the \textit{error-first} convention}.
+For this reason, we focus only on the \textit{error-first} convention.
 So, The compiler is only able to compile code that follows this convention.
 The convention used by Promises is incompatible.
 We propose an alternative specification to Promise following the \textit{error-first} convention.
