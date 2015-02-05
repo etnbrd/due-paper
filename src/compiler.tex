@@ -7,18 +7,19 @@ Instead of modifying the implementation of the callee, we propose to wrap it ins
 The \texttt{due} library provides such a wrapper : \texttt{mock}.
 
 
+From the equivalence previously detailed, this section present an automation of the translation.
+The compiler translates Javascript code with continuations into code with Promises.
+There is roughly two steps in the compilation process, present in the first two following sections.
+The first is to identify the continuation pyramids.
+The second is to assure the disjunction of nested continuations.
+In the third following section, we the identification of the rupture points.
+% This identification is a combination of static analysis, manual confirmation and community reinforcement.
 
-We explain in this section the compilation process.
-The compiler transform asynchronous call with continuation to make them compatible with due.
-This process flatten a continuation pyramid into a cascading sequence of call to \texttt{then}.
-There is roughly two steps in this process.
-The first, described in section \ref{section:compiler:chain}, is to build the chain of continuation from the continuations pyramids.
-The second, described in section \ref{section:compiler:chain}, is to extract the shared identifiers to move them in a parent scope.
+% This identification in the source code is done using esprima\ftnt{http://esprima.org/}, an ECMAScript parser.
 
-As stated earlier, the compiler doesn't detect rupture points.
-It expects a list of previously detected rupture points.
-In the prototype, we spot the rupture point by hand.
-In section \ref{section:compiler:lib-compilation}, we present some thoughts about automation solutions.
+% We explain in this section the compilation process.
+% The compiler transform asynchronous call with continuation to make them compatible with due.
+% This process flatten a continuation pyramid into a cascading sequence of call to \texttt{then}.
 
 \subsection{Build continuation chains} \label{section:compiler:chain}
 
@@ -27,15 +28,31 @@ In section \ref{section:compiler:lib-compilation}, we present some thoughts abou
 % The return statement in a continuation is only to control the execution flow - early return - not the data flow - return a value.
 % We can modify a continuation to make it return a Due while keeping the semantic.
 
-The first step is to build arrange the rupture points in chain.
-These chains are branches of trees of rupture points.
+To apply the equivalence, the compiler needs to identify the chains of nested continuations to translate into Dues.
+Dues are arranged as a chain of calls, while, a continuation can nest multiple child continuations.
+They are arranged as a tree.
+The compiler identify these trees of continuations, and break it into chains of continuations.
+As stated in the previous section, we consider only continuations that are \textit{FunctionExpressions}.
 
-A tree of rupture points represent the hierarchy of the rupture points in the source code.
-To form this tree, there is only one constraint : a child rupture point cannot be separated from its parent by a function.
-This is because this middle function is not assured to be executed only once, or synchronously.
-If this middle function is used as an iterator or a listener, there would be multiple child Dues to return, while only one is expected by the parent callback.
-If this middle function is used as a continuation, the due returned by the child rupture point would net be available synchronously to be returned by the parent callback.
+Any Javascript code is organized as a tree of function definitions nested one in its parent.
+A tree of continuation is a part of this tree of function definitions containing only continuations.
+A continuation is a leaf only if its function parent is also a continuation.
+Otherwise, it is the root of a tree.
+
+A tree of continuations can not contain a loop, nor a function that is not a continuation.
+Indeed, a loop might arrange the execution flow to call the nested asynchronous function multiple times, which would produce multiple Dues, while only one is expected to continue the chain.
+Or the function might be invoked so as to break the chain of Dues.
+
+
+However, a conditional branch leaves the semantic intact.
+
+If function is called multiple times, there would be more than one Due to return, while only one is expected to continue the chain.
+If function is used as a continuation, the due returned by the child rupture point would net be available synchronously to be returned by the parent callback.
 For example this middle function might be defined in the parent, but used in a different part of the program.
+
+
+We consider only continuation because Dues are a placeholder for a single outcome.
+
 
 At the end of this first process, we have multiple trees containing the hierarchy of all the rupture points in the application.
 Because a function can only return one Due, it is not possible to flatten a tree of rupture points, only a chain.

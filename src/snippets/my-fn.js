@@ -1,8 +1,8 @@
-var D = require('due');
+var Due = require('due');
 
 module.exports = function my_fn(arg, continuation) {
-  return new D(function(settle) {
-    setImmediate(function() { // Simulate an asynchron operation
+  return new Due(function deferred(settle) {
+    setImmediate(function cont() { // Simulate an asynchron operation
       var result = arg,
           err = null;
 

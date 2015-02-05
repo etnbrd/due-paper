@@ -3,31 +3,35 @@
 \subsection{Callback} \label{section:definitions:continuation}
 
 A callback is a function passed as a parameter to a function call.
-It is invoked by the callee to continue the execution with arguments not available in the caller context.
+It is invoked by the callee to continue the execution with data not available in the caller context.
 We distinguish three kinds of callbacks.
 
 \begin{description}
   \item[Iterators] are functions called for each item in a set, often synchronously.
-  \item[Listeners] are functions called asynchronously for each message in a stream.
+  \item[Listeners] are functions called asynchronously for each event in a stream.
   \item[Continuations] are functions called asynchronously once a result is available.
 \end{description}
 
 As we will see later, Promises are designed as placeholders for a unique outcome.
 Iterators and Listeners are invoked multiple times resulting in multiple outcomes.
 Only continuations are equivalent to Promises.
-Therefore, we focus on continuations in this paper.
+Therefore, \textbf{we focus on continuations} in this paper.
 
 Callbacks are often mistaken for continuations ; the former are not inherently asynchronous while the latter are.
 In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 An operation needs to complete before executing the next one.
-On the other hand, in an asynchronous paradigm, parallelism is trivial, operations are executed in parallel.
+On the other hand, in an asynchronous paradigm, parallelism is trivial, operations are executed in parallel by default.
 The sequentiality of operations needs to be explicit.
 Continuations are the functional way of providing this control over \textbf{the sequentiality of the asynchronous execution flow}.
 
 A \textbf{continuation} is a function passed as an argument to allow the callee not to block the caller until its completion.
+The caller is able to continue the execution with other operations in parallel.
 The continuation is invoked later, at the termination of the callee to continue the execution as soon as possible and process the result ; hence the name continuation.
+It provides a necessary control over the asynchronous execution flow.
+It also brings a control over the data flow to replace the return statement at the end of a synchronous function.
+At its invocation, the continuation retrieves both the the execution flow and the result.
 
-When using continuation, the convention on how to hand back the result must be common for both the callee and the caller.
+The convention on how to hand back the result must be common for both the callee and the caller.
 For example, in \textit{Node.js}, the signature of a continuation uses the \textit{error-first} convention.
 % \ftnt{https://docs.nodejitsu.com/articles/errors/what-are-the-error-conventions}
 % \ftnt{http://programmers.stackexchange.com/questions/144089/different-callbacks-for-error-or-error-as-first-argument} convention.
@@ -91,10 +95,10 @@ my_fn_1(input, function cont(error, result) {
 
 In a synchronous paradigm, the sequentiality of the execution flow is trivial.
 While in an asynchronous paradigm, this control is provided by continuations.
+Promises provide a unified \textbf{control over the execution and data flow} for both paradigms.
 The specification\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-promise-objects} defines a \textbf{Promise} as an object that is used as a placeholder for the eventual outcome of a deferred (and possibly asynchronous) operation.
 % A Promise is an object returned by a function to represent its result
-Promises provide a unified \textbf{control over the execution flow} for both paradigms.
-They expose a \texttt{then} method which expects a continuation to continue with the result ; this result being synchronously or asynchronously available.
+Promises expose a \texttt{then} method which expects a continuation to continue with the result ; this result being synchronously or asynchronously available.
 
 % However, unlike continuations, the Promises specification imposes a convention on how to handle the result.
 % Because it is possibly unavailable synchronously, it still requires a continuation to defer the execution when the result is made available.
@@ -111,7 +115,7 @@ As a result, Promises impose a convention on how to hand back the outcome of the
 \begin{code}[js, %
              caption={Example of a promise}, %
              label={lst:then}] %
-var promise = my_fn(input)
+var promise = my_fn_pr(input)
 
 promise.then(function onSuccess(result) {
   console.log(result);
@@ -128,7 +132,7 @@ That is to arrange them, one operation after the other, in the same indentation 
 % This link allow to compose chains of asynchronous operations.
 
 The listing \ref{lst:promises-sequence} illustrates this chained composition.
-The functions \texttt{my_fn_2} and \texttt{my_fn_3} return promises when they are executed, asynchronously.
+The functions \texttt{my_fn_pr_2} and \texttt{my_fn_pr_3} return promises when they are executed, asynchronously.
 Because these promises are not available synchronously, the method \texttt{then} synchronously returns intermediary Promises.
 The latter resolve only when the former resolve.
 This behavior allows to arrange the continuations as a flat chain of calls, instead of an imbrication of continuations.
@@ -136,9 +140,9 @@ This behavior allows to arrange the continuations as a flat chain of calls, inst
 \begin{code}[js, %
              caption={A chain of Promises is more concise than an imbrication of continuations}, %
              label={lst:promises-sequence}] %
-my_fn_1(input)
-.then(my_fn_2, onError)
-.then(my_fn_3, onError)
+my_fn_pr_1(input)
+.then(my_fn_pr_2, onError)
+.then(my_fn_pr_3, onError)
 .then(console.log, onError);
 
 function onError(error) {
@@ -149,9 +153,9 @@ function onError(error) {
 The Promises syntax is more concise, and also more readable because it is closer to the familiar synchronous paradigm.
 Indeed, Promises allow to arrange both the synchronous and asynchronous execution flow with the same syntax.
 It allows to easily arrange the execution flow in parallel or in sequence according to the required causality.
+This control over the execution lead to a modification of the control over the data flow.
 Programmers are encouraged to arrange the computation as series of coarse-grained steps to carry over inputs.
-In this sense, Promises are comparable to the data-flow paradigm.
-% Yet programmers must keep in mind the asynchronous flow
+In this sense, Promises are comparable to the data-flow programming paradigm.
 
 \subsection{From Continuation to Promise} \label{seciton:definitions:analysis}
 
@@ -166,11 +170,11 @@ To develop further this transformation, we identify two steps.
 The first is to provide an equivalence between a continuation and a Promise.
 The second is the composition of this equivalence.
 Both steps are required to transform imbrications of continuations into chains of Promises.
-
-to be able to compose this equivalence for imbrications of continuations to obtain chains of Promises.
+% to be able to compose this equivalence for imbrications of continuations to obtain chains of Promises.
 
 Because Promises bring composition, the first step might seem trivial as it does not imply any imbrication to compose.
-However, as explained in section \ref{section:definitions:promise}, Promises impose a convention on how to hand back the outcome, while continuations don't.
+However, as explained in section \ref{section:definitions:promise}, Promises impose a control over the execution flow that continuations leave free.
+This control induces a common convention to hand back the outcome to the continuation.
 
 In the Javascript landscape, there is no dominant convention for handing back outcomes to continuations.
 In the browser, many conventions coexist.
@@ -180,15 +184,21 @@ Conventions for continuations are very heterogeneous in the browser.
 On the other hand, \textit{Node.js} API always used the \textit{error-first} convention, encouraging developers to provide libraries using the same convention.
 In this large ecosystem the \textit{error-first} convention is predominant.
 All these examples uses different conventions than the Promise specification detailed in section \ref{section:definitions:promise}.
-Promises include the conditional execution over the outcome, while the \textit{error-first} convention let developers provide it.
+They present strong semantic differences, despite small syntax differences.
+% Some conventions include the conditional execution over the outcome, while other conventions let developers provide it.
+% These conventions uses different control-flow.
 
-To translate the different conventions into the Promises convention, the compiler would need to identify them.
-Such an identification might be possible with a static analysis of the control flow. \comment{todo references}
+To translate the different conventions into the Promises one, the compiler would need to identify them.
+Such an identification might be possible with a static analysis. \comment{todo references}
 However, impracticable because of the heterogeneity.
-Indeed, they present strong semantic differences, despite weak syntax differences.
-In this paper, we focus on the transformation from imbrications to chains, not from one convention to another.
-For this reason, we chose to focus on the \textit{error-first} convention, used in \textit{Node.js}, because it is likely to represent a large code base.
-And we propose an alternative specification to Promise following the \textit{error-first} convention.
+Indeed, in the browser, each library seems to provide its own convention.
+
+In this paper, we are interested in the transformation from imbrications to chains, not from one convention to another.
+The \textit{error-first} convention, used in \textit{Node.js}, is likely to represent a large, coherent code base to test the equivalence over.
+For this reason, \textbf{we focus only on the \textit{error-first} convention}.
+So, The compiler is only able to compile code that follows this convention.
+The convention used by Promises is incompatible.
+We propose an alternative specification to Promise following the \textit{error-first} convention.
 In the next section we present this specification, called Due.
 
 The choice to focus on \textit{Node.js} is also motivated by our intention to later compare the chained sequentiality of Promises with the data-flow paradigm.
@@ -196,7 +206,7 @@ The choice to focus on \textit{Node.js} is also motivated by our intention to la
 
 % In section \ref{section:equivalence}, we explain the two steps of the transformation from continuations to Dues.
 
-\subsection{Dues} \label{section:due}
+\subsection{Dues} \label{section:definitions:due}
 
 In this section, we present \textit{Dues}, a simplification of the Promise specification.
 A Due is an object used as placeholder for the eventual outcome of a deferred operation.
@@ -205,6 +215,7 @@ Dues are essentially similar to Promises, except for the convention to hand back
 They use the \textit{error-first} convention, like \textit{Node.js}, as illustrated in listing \ref{lst:due}.
 The implementation of Dues and its tests are in appendix \ref{section:dueimpl}.
 A more in-depth description of Dues and their creation follows in the next paragraph.
+% The \texttt{mock} method is implemented in listing \ref{lst:due-creation}.
 % While a promise expects two continuations, \texttt{onSuccess} and \texttt{onErrors}, the method \texttt{then} of a due expects only one continuation, following the convention \textit{error-first}.
 % \footnotemark{\ref{ftn:error-conventions}}
 % \footnotemark{\ref{ftn:error-first}}.
@@ -212,7 +223,9 @@ A more in-depth description of Dues and their creation follows in the next parag
 \begin{code}[js, %
              caption={Example of a due}, %
              label={lst:due}] %
-var due = my_fn(input)
+var my_fn_due = require('due').mock(my_fn);
+
+var due = my_fn_due(input);
 
 due.then(function continuation(error, result) {
   if (!error) {
@@ -223,14 +236,19 @@ due.then(function continuation(error, result) {
 });
 \end{code}
 
-A due is typically created inside the function which returns it, as illustrated in listing \ref{lst:due-creation}.
-% The creation of a Due happens inside the callee, as illustrated in listing \ref{lst:due-creation}.
-At its creation, the due expects a callback containing the deferred operation.
+A due is typically created inside the function which returns it.
+In listing \ref{lst:due}, the \texttt{mock} method create a Due-compatible function from \texttt{my\_fn}.
+We illustrate the creation of a Due with the \texttt{mock} method, in listing \ref{lst:due-creation}.
+
+At its creation, line \ref{lst:due-creation:new}, the due expects a callback containing the deferred operation, \texttt{my\_fn}.
 This callback is executed synchronously with the function \texttt{settle} as argument to settle the Due, synchronously or asynchronously.
-Indeed, the operation might be synchronous, or asynchronous.
-At the end of the operation, its continuation \texttt{cont} calls \texttt{settle} to settle the Due and save the outcome.
+% Indeed, the operation might be synchronous, or asynchronous.
+The callback invokes the deferred operation line \ref{lst:due-creation:call}.
+\texttt{my\_fn} being asynchronous, it expects a callback as last argument : \texttt{settle}.
+At the end of the operation, the deferred operation calls \texttt{settle} to settle the Due and save the outcome.
 % A Due is in one of two mutually exclusive states: settled or pending.
-The \texttt{then} method allows to define a continuation to retrieve this outcome, and continue the execution after the settlement of its Due.
+Settled or not, the created Due is synchronously returned.
+Its \texttt{then} method allows to define a continuation to retrieve the saved outcome, and continue the execution after its settlement.
 If the deferred operation is synchronous, the Due settles during its creation and the \texttt{then} method immediately calls this continuation.
 If the deferred operation is asynchronous, this continuation is called during the Due settlement.
 
@@ -241,37 +259,37 @@ If the deferred operation is asynchronous, this continuation is called during th
 \begin{code}[js, %
              caption={Creation of a due}, %
              label={lst:due-creation}] %
-function my_fn(input) {
-  return new Due(function(settle) {
-    deferred(input, function cont(err, result) {
-      settle(err, result);
+Due.mock = function(my_fn) {
+  return function() {
+    var _args = Array.prototype.slice.call(arguments),
+        _this = this;
+
+    return new Due(function(settle) {  //@\label{lst:due-creation:new}@
+      _args.push(settle);
+      my_fn.apply(_this, _args); //@\label{lst:due-creation:call}@
     })
-  })
+  }
 }
 \end{code}
 
-The composition of Dues is essentially the same than for Promises.
-This composition is explained in details in section \ref{section:definitions:promise}, and illustrated specifically for Dues in listing \ref{lst:dues-sequence}.
+The composition of Dues is essentially the same than for Promises, detailed in section \ref{section:definitions:promise}.
+% This composition is explained in details in section \ref{section:definitions:promise}. %, and illustrated specifically for Dues in listing \ref{lst:dues-sequence}.
 Through this chained composition, Dues arrange the execution flow as a sequence of actions to carry on inputs.
 
-\begin{code}[js, %
-             caption={Dues are chained like Promises}, %
-             label={lst:dues-sequence}] %
-my_fn_1(input)
-.then(screenError(my_fn_2))
-.then(screenError(my_fn_3))
-.then(screenError(console.log));
+% \begin{code}[js, %
+%              caption={Dues are chained like Promises}, %
+%              label={lst:dues-sequence}] %
+% var Due = require('due');
 
-function screenError(fn) {
-  return function(error, result) {
-    if (!error) {
-      return fn(result);
-    } else {
-      throw error;
-    }
-  };
-}
-\end{code}
+% var my_fn_due_1 = Due.mock(my_fn_1),
+%     my_fn_due_2 = Due.mock(my_fn_2),
+%     my_fn_due_3 = Due.mock(my_fn_3);
+
+% my_fn_1(input)
+% .then(my_fn_2)
+% .then(my_fn_3)
+% .then(console.log);
+% \end{code}
 
 This simplified specification adopts the same convention than \textit{Node.js} continuations to hand back outcomes.
 Therefore, the equivalence between a continuation and a Due is trivial.

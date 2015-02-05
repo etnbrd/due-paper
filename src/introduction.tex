@@ -53,12 +53,11 @@ Callbacks, on the other hand, leave this conditional control to the developer.
 This paper focuses on the transformation from imbrication of callbacks to chain of Promises.
 To avoid unnecessary modifications on this conditional control, we introduce an alternative to Promises leaving this conditional control to the developer, like callbacks.
 We call this alternative specification Dues.
-This approach enables us to compile legacy Javascript code from repositories and brings a first automated step toward full Promises integration.
+Our approach enables us to compile legacy Javascript code and brings a first automated step toward full Promises integration.
 This simple and pragmatic compiler has been tested over \textit{n} Github repositories, \textit{k} of which with success. \comment{todo}
 
-In section \ref{section:definitions} we define callbacks and Promises.
-We then introduce Dues in section \ref{section:due}.
-In section \ref{section:equivalence}, we explain the transformation from callback imbrications to dues sequences.
-In section \ref{section:compiler}, we present an implementation of this transformation.
-In section \ref{section:evaluation}, we evaluate this compiler.
-We present related works in section \ref{section:related}, and finally conclude in section \ref{section:conclusion}.
+In section \ref{section:definitions} we define callbacks, Promises and then Dues.
+In section \ref{section:equivalence}, we explain the transformation from imbrications of callbacks to sequences of Dues.
+In section \ref{section:limits}, we present the different steps to automate the application of this equivalence, and expose its limitations.
+In section \ref{section:evaluation}, we evaluate the developed compiler.
+In section \ref{section:related}, we present related works, and finally conclude in section \ref{section:conclusion}.

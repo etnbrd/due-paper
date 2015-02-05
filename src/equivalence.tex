@@ -1,7 +1,15 @@
-\section{Compilation} \label{section:equivalence}
+\section{Equivalence} \label{section:equivalence}
 
-The previous section defined continuations, the \textit{error-first} convention, and Dues, a simpler Promises specification bringing chained composition.
-From this definitions, we present the semantic equivalence between a continuation and a Due, and then the composition of this equivalence to develop further the transformation from imbrications into chains.
+% The previous section defined continuations, the \textit{error-first} convention, and Dues.
+% , a simpler Promises specification bringing chained composition.
+We present the semantic equivalence between a continuation and a Due.
+This equivalence allows to transform imbrications of continuations into chains of Dues.
+% , and then the composition of this equivalence to develop further the transformation from imbrications into chains.
+% While developing the equivalence, we chose to focus only on a subset of the Javascript programs.
+% As we will see, it exposes some limitations.
+% The callee must be asynchronous.
+% The continuation must be a \textit{FunctionExpression}
+% The continuation and the callee must not return a significant value.
 
 % In the listings of the previous section, \texttt{my_fn} either expects a continuation, or returns a Due.
 
@@ -29,7 +37,7 @@ To illustrate the transformations, we use the function \texttt{my_fn} in listing
 This function is tailored for this transformation, it both expects a callback and returns a Due.
 The transformation modifies the required signature of the callee.
 In the source of the transformation, the callee expects a continuation, while in the result of the transformation, the callee returns a Due.
-The modification of the signature of the callee is addressed in section \ref{section:compiler}.
+The modification of the signature of the callee is addressed in section \ref{section:limits:mock}.
 
 \includecode{js, %
              caption={\texttt{my_fn} expects a callback, and returns a Due}, %
@@ -42,7 +50,7 @@ The modification of the signature of the callee is addressed in section \ref{sec
 % As explained in section \ref{section:due}, a Due is an object to defer a computation, and exposes a method \texttt{then} to continue the execution after the deferred computation, like in listing \ref{lst:du-ex}.
 % Because the difference between continuations and dues is the composition, the difference between the listings \ref{lst:ct-ex} and \ref{lst:du-ex} is mainly syntactical.
 
-Continuations provide a control over the sequentiality of the asynchronous execution flow, and Dues brings the chained composition.
+Continuations provide a control over the sequentiality of the asynchronous execution flow, and Dues brings the chained composition of this control.
 The equivalence between a single continuation and a Due does not involve composition, so the manipulation to transform listing \ref{lst:ct-ex} into \ref{lst:du-ex} is trivial.
 It consist of calling the method \texttt{then} of the returned Due, and moving \texttt{continuation} to the arguments of this new call.
 
@@ -61,38 +69,47 @@ It consist of calling the method \texttt{then} of the returned Due, and moving \
 % Javascript defines functions as first-class citizens.
 % It allows the definition of \textit{Functions Expressions} to be passed as arguments, like \texttt{continuation}.
 % Moreover, Javascript defines scopes at the function level.
-By moving the evaluation of \texttt{continuation} after the call to \texttt{my_fn}, we might alter the execution order, hence the semantic.
+The relocation of the evaluation of \texttt{continuation} might alter the execution order, hence the semantic.
 But the definition of a \textit{Function Expression} is free of side-effects.
-Indeed, the identifier \texttt{continuation} is available only inside itself, for recursion.
+Indeed, it leaves intact the scope in which it is defined.
+% Indeed, the identifier \texttt{continuation} is available only inside itself, for recursion.
 The manipulation conserves the semantic, it is \textit{sound}.
 
-We focus only on continuations expressed as \textit{Function Expression}.
+To summarize the specification, these \textit{Expressions} possibly return a function.
+\begin{itemize}
+  \item a \textit{FunctionExpression},
+  \item an \textit{ArrowFunction},
+  \item an \textit{Identifier}, a \textit{MemberExpression} or a \textit{ThisExpression} pointing to a function,
+  \item a \textit{CallExpression}, \textit{YieldExpression} returning a function, and
+  \item a \textit{NewExpression} creating a new function,
+\end{itemize}
+
+\textbf{We focus only on continuations expressed as \textit{Function Expressions}}.
 For other types of continuations, the manipulation is either irrelevant, or unsound.
-When using \textit{Identifiers}, it is impossible to nest continuations, the equivalence would be irrelevant.
-When using \textit{Immediately-Invoked Function Expression}, the manipulation is unsound.
+Respectively, either the continuation prevent nesting, or its evaluation causes side-effects.
+For example, when using \textit{Identifiers}, it is impossible to nest continuations, the equivalence would be irrelevant.
+When using \textit{Immediately-Invoked Function Expression} (IIFE), a common pattern to return a closure, the manipulation is unsound.
 Before the manipulation, the evaluation of this expression would occur \textbf{before} the call to \texttt{my_fn}.
 While, after the manipulation, it would occur \textbf{after} the call to \texttt{my_fn}.
-If this evaluation induce side-effects, the manipulation would prevent them from happening before the call to \texttt{my_fn}.
+The manipulation would prevent side-effects from happening before the call to \texttt{my_fn}.
 The manipulation is \textit{sound} and relevant only when manipulating \textit{FunctionExpression}.
 
 \subsection{Composition of nested continuations} \label{section:equivalence:composition}
 
-The equivalence previously presented is incomplete, it leaves sequential operations nested one in the other.
+The equivalence previously presented is incomplete, it leaves sequential operations nested.
 To transform an imbrication of continuations into a chain of Dues, we need to assure the composition of this simple equivalence.
 An example of nested continuations is illustrated in listing \ref{lst:ct-seq}.
-The Due equivalence is illustrated in listing \ref{lst:du-seq}.
-The composition of this equivalence requires two additional transformations.
+The semantic equivalent chain of Dues is illustrated in listing \ref{lst:du-seq}.
+The composition of this equivalence requires at least two additional transformations.
 
 \begin{itemize}
   \item The nested continuation \texttt{cont2} is chained in the same indentation level as the first one, by a second call to the \texttt{then} method, line \ref{lst:du-seq:ctdef2}.
   This second call refers to the intermediary Due returned by the first call to the \texttt{then} method.
-  \item For this chain to be possible, the Due returned by the nested call to \texttt{my_fn} must be linked with this intermediary Due which the second call refers to.
-  The Due from the nested asynchronous function \texttt{cont1} is retrieved, line \ref{lst:du-seq:ctdef2}, and returned line \ref{lst:du-seq:ret} to be linked internally to the intermediary Due.
+  \item For this chain to be possible, this intermediary Due must be linked with the Due returned by the nested call to \texttt{my_fn}.  
+  % which the second call refers to.
+  The Due from the nested asynchronous function \texttt{cont1} is retrieved, line \ref{lst:du-seq:ctdef2}, and returned line \ref{lst:du-seq:ret} to be internally linked to the intermediary Due.
+  \item The definition of \texttt{shared_identifier} is relocated in the global scope to be accessible by both \texttt{cont1} and \texttt{cont2}. The accessibility of identifiers is developed in section \ref{section:limits:disjunction}.
 \end{itemize}
-
-The composition of the equivalence leads to some semantical differences between listing \ref{lst:ct-seq} and \ref{lst:du-seq}.
-It is unsound in some corner cases.
-In the next paragraph, we explore the three limits of the composition to ensure soundness.
 
 \includecode{js, %
              caption={Overlapping continuations definitions}, %
@@ -106,97 +123,6 @@ In the next paragraph, we explore the three limits of the composition to ensure 
              }
              {snippets/du-seq.js}
 
-\subsubsection{Scope disjunction} \label{section:equivalence:composition:disjunction}
-
-In listing \ref{lst:ct-seq}, because the definitions of \texttt{cont1} and \texttt{cont2} are overlapping, their scopes\ftnt{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-lexical-environments} are also overlapping.
-The function \texttt{cont1} shares its identifiers with \texttt{cont2}.
-While in listing \ref{lst:du-seq}, the definitions of \texttt{cont1} and \texttt{cont2} are siblings, they have disjoint scopes.
-The manipulation modifies the semantic, it change the hierarchy of scopes.
-To keep the semantic intact, we need to assure their disjunction statically, before the manipulation.
-
-Javascript exposes two built-in functions that dynamically modify scopes : \texttt{eval} and \texttt{with}.
-To avoid dynamical modifications, we consider the subset of Javascript excluding these two built-in functions.
-This subset is statically scoped at the function level, it is possible to infer the scope of identifiers before run time.
-
-An identifier is in the scope of its defining function and all its descendants.
-We define two scopes as disjoints if none use an identifier defined inside the other.
-They can use common identifiers if they are defined in a common parent scope.
-For two scopes to become disjoints, all shared identifiers must be previously define in a common parent scope.
-
-In listing \ref{lst:ct-seq}, the identifier \texttt{shared\_identifier} is accessible both from its defining function \texttt{cont1} and the descendant \texttt{cont2}.
-However, in listing \ref{lst:du-seq}, the scope of \texttt{cont1} and \texttt{cont2} are disjoints.
-For the identifier \texttt{shared\_identifier} to still be accessible in both function, it is defined in the first common parent scope, which is the global scope.
-
-\subsubsection{Chain of Due}
-
-For the chained composition to be possible, each continuation containing a nested asynchronous function call must return the Due returned by this asynchronous function.
-The modifications to retrieve and return this Due is sound only if it take place in classic situations.
-
-In \textit{Node.js}, continuations are triggered as the first function on the stack.
-There is no caller waiting for a result to be returned to.
-In this situation, a \textit{Return Statement} has only semantic purpose to control the execution flow, not to hand a result back like a regular function.
-Since it should not return any significant value, we assume it is safe for a continuation to return a Due.
-
-Similarly, classic asynchronous functions do not synchronously return any significant value.
-The result of an asynchronous operation is available only asynchronously.
-Therefore, we assume it is safe for those functions to return a Due.
-
-There exist situations in which the previous assumptions are false.
-For example, the asynchronous function \texttt{SetTimeout} returns an identifier pointing to the created timer.
-Therefore, we leave the developer to assure the soundness of the modification within uncommon contexts.
-
-\subsubsection{Execution order}
-
-We define continuations to be executed asynchronously, hence the compiler is not meant to replace synchronous continuations.
-While Dues are meant as a substitution both for the asynchronous and the synchronous control over the execution flow.
-When a chain of Due replace an imbrication of synchronous continuations, the execution order might change.
-A synchronous continuation is executed within the callee, \textbf{before} the following instruction.
-In the Due equivalence, the synchronous continuation would be executed \textbf{after} this virtual following instruction.
-
-% The deferred computation is asynchronous, and the execution flow is not modified by the manipulation.
-% The function \texttt{cont2} is executed after the function \texttt{cont1}, and they share the same environment record.
-% So all type of accesses are equivalents : writing or reading.
-% The type of access required by \texttt{cont1} and \texttt{cont2} is insignificant for this manipulation.
-
-
-
-% \subsection{Soundness and Completeness} \label{section:soundness-completeness}
-
-% \TODO{TODO prove soundness and completeness with the following}
-% The call to \texttt{my_fn} is a \textit{CallExpression}\footnote{\url{https://people.mozilla.org/~jorendorff/es6-draft.html\#sec-expression-rules}}.
-% The arguments of a CallExpression are only AssignementExpression.
-% The AssignementExpression that possibly returns a callable object, \textit{i.e.} a function, or a method, are :
-% \begin{itemize}
-% \item Identifier
-% \item FunctionExpression
-% \item ArrowFunction
-% \item YieldExpression
-% \item CallExpression
-% \item MemberExpression
-% \item this
-% \end{itemize}
-% In the listings \ref{lst:cb-simple}, \ref{lst:pr-simple}, \ref{lst:ct-seq} and \ref{lst:pr-seq}, the identifier \texttt{callback} can be replaced with any of these expressions.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+The composition of the equivalence leads to some semantical differences.
+It is unsound in some corner cases.
+In the next section, we explore the limits of the equivalence to ensure soundness, and allow automation.

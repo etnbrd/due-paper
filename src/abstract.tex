@@ -1,3 +1,22 @@
 \section*{Abstract}
 
-\vfill\eject
+Javascript is the prevalent scripting language for the web.
+It let web pages register callbacks to react to user events.
+A callback is a function to be invoked later with a result currently unavailable.
+This pattern also proved to respond efficiently to remote requests.
+Javascript is currently used to implement complete web applications.
+However, callbacks are ill-suited to arrange a large asynchronous execution flow.
+\textit{Promises} are a more adapted alternative.
+They provide a unified control over both the synchronous and asynchronous execution flows.
+
+Promises are about to replace callbacks.
+This paper brings the first step toward a compiler to help developers prepare this shift.
+We present an equivalence between callbacks and Dues.
+The latter are a simpler specification of Promises developed for the purpose of this demonstration.
+From this equivalence, we implement a compiler to transform an imbrication of callbacks into a chain of Dues.
+This equivalence is limited to \textit{Node.js}-style in-line asynchronous callbacks.
+We test our compiler over a small subset of github and npm projects, some of them with success, and show our results.
+
+We consider this shift to be a first step toward the merge of elements from the data-flow programming model into the imperative programming model.
+
+% \vfill\eject

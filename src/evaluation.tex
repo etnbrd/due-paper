@@ -1,1 +1,17 @@
 \section{Evaluation} \label{section:evaluation}
+
+
+% Tested applications :
+
+% rest-api-express            -> OK
+
+% socket-testing              -> OK (partial) the project is broken, but it seems broken in the same way before and after the compilation :)
+% nodeExample                 -> OK (partial) read-simple.js and write-simple.js compile successfully (the only two files to contain continuation). but the project compiler breaks, I suspect it is because of some !# stuffs. 
+
+% fligg                       -> NOK not functionnal : impossible to log, or sign in
+% colors                      -> NOK no continuations
+% request                     -> NOK one continuation, but useless because called by SetImmediate
+% async                       -> NOK presence of with or eval
+% penguin                     -> NOK not functionnal : syntax error
+% expression.io               -> NOK tests not passed before compilation
+% blog-experiment             -> NOK only one continuation : poet.init, and it already returns a thenable.
