@@ -1,0 +1,56 @@
+\section{Compiler} \label{section:compiler}
+
+We build a compiler to automate the application of this equivalence on existing Javascript repositories.
+The compilation process contains two important steps, the identification of the continuations, and the generation of chains.
+
+\subsection{Continuation identification}
+
+The equivalence is applicable only on continuations.
+The first compilation step is to identify the continuations among the callbacks.
+A continuation is a callback invoked only once, asynchronously.
+Spotting a continuation implies to identify these two conditions.
+There is no syntactical difference between a synchronous and an asynchronous callee.
+And it is impossible to assure a callback to be invoked only once, because the implementation of the callee is often unavailable statically.
+Therefore, the identification of continuations is necessarily based on semantical differences.
+For this purpose, the compiler would need to have a deep understanding of the control and data flows of the program.
+Because of the highly dynamic nature of Javascript, this understanding is either unsound, limited, or complex.
+Instead, we choose to leave to the developer the identification of compatible continuations among the identified callbacks.
+They are expected to understand the limitations of this compiler, and the semantic of the code to compile.
+
+We provide a simple interface for developers to interact with the compiler.
+We built the compiler as a web page.
+The compiler is available online\ftnt{compiler-due.apps.zone52.org} to reproduce the tests.
+
+This interaction prevent the complete automation of the individual compilation process.
+However, we are working on an automation at a global scale.
+We expect to be able to identify of a continuation only based on its callee name, \textit{e.g.} \texttt{fs.readFile}.
+We built a service to gather these names along with their identification.
+The compiler query this service to present an estimated identification, and send back the final choices to refine it.
+In future works, we would like to study the possibility of easing the compilation interaction.
+
+\subsection{Chains}
+
+The compositions of continuations and Dues are arranged differently.
+Continuations structure the execution flow as a tree, while the chain of Dues arrange it sequentially.
+A parent continuation can have several children, not a Due.
+The second compilation step is to identify these imbrications of continuations to transform them into chains.
+
+% We consider an imbrication of continuations as a subtree of the linear execution tree.
+The compiler trims each tree of continuations to get chains to translate into Dues.
+If a continuation has more than one child, the compiler try to find a legitimate child to continue the chain.
+The legitimate child is the only parent among its siblings.
+If there is several parents among the children, then none are the legitimate child.
+The non legitimate children start a new tree.
+This steps yield chains of continuations assured to be transformable into sequences of Dues.
+The code generation from these chains is straightforward.
+
+
+
+
+
+
+% \comment{TODO insert this}
+% We developed the compiler core in node.js Javascript.
+% There already exist sets of tools for manipulating code in Javascript.
+% We used the Esprima suite of tools.
+

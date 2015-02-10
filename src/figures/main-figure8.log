@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.5)  9 FEB 2015 16:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.5)  9 FEB 2015 18:15
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1601,22 +1601,22 @@ isable this.
 A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
 isable this.
 
-Underfull \hbox (badness 7851) in paragraph at lines 23--29
+Underfull \hbox (badness 7851) in paragraph at lines 24--30
 |  \T1/aer/m/it/9 sta-te-ments  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
  []
 
 
-Underfull \hbox (badness 7981) in paragraph at lines 23--29
+Underfull \hbox (badness 7981) in paragraph at lines 24--30
 \T1/aer/m/sc/9 be-cause it does not
  []
 
 
-Underfull \hbox (badness 7851) in paragraph at lines 23--29
+Underfull \hbox (badness 7851) in paragraph at lines 24--30
 |  \T1/aer/m/it/9 sta-te-ments  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
  []
 
 
-Underfull \hbox (badness 7981) in paragraph at lines 23--29
+Underfull \hbox (badness 7981) in paragraph at lines 24--30
 \T1/aer/m/sc/9 be-cause it does not
  []
 
@@ -1625,37 +1625,84 @@ isable this.
 A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
 isable this.
 
-Underfull \hbox (badness 7851) in paragraph at lines 31--39
+Underfull \hbox (badness 7851) in paragraph at lines 32--40
 |  \T1/aer/m/it/9 sta-te-ments  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
  []
 
 
-Underfull \hbox (badness 7981) in paragraph at lines 31--39
+Underfull \hbox (badness 7981) in paragraph at lines 32--40
 \T1/aer/m/sc/9 be-cause it does not
  []
 
 
-Underfull \hbox (badness 7851) in paragraph at lines 31--39
+Underfull \hbox (badness 7851) in paragraph at lines 32--40
 |  \T1/aer/m/it/9 sta-te-ments  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
  []
 
 
-Underfull \hbox (badness 7981) in paragraph at lines 31--39
+Underfull \hbox (badness 7981) in paragraph at lines 32--40
 \T1/aer/m/sc/9 be-cause it does not
  []
 
 
-Overfull \hbox (3.5311pt too wide) in paragraph at lines 22--40
+Overfull \hbox (3.5311pt too wide) in paragraph at lines 23--41
 [][] 
  []
 
 
-Package Listings Warning: Text dropped after begin of listing on input line 43.
+Package Listings Warning: Text dropped after begin of listing on input line 44.
 
 
-\openout4 = `figures/main-figure4.dpth'.
+A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
+isable this.
+A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
+isable this.
+A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
+isable this.
+A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
+isable this.
 
-[4
+Underfull \hbox (badness 10000) in paragraph at lines 72--90
+
+ []
+
+
+LaTeX Warning: Reference `lst:ct-serial' on page \thepage  undefined on input l
+ine 115.
+
+
+LaTeX Warning: Reference `lst:ct-nested' on page \thepage  undefined on input l
+ine 128.
+
+
+LaTeX Warning: Reference `lst:du-nested' on page \thepage  undefined on input l
+ine 129.
+
+
+Package Listings Warning: Text dropped after begin of listing on input line 134
+.
+
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 136.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 142--156
+
+ []
+
+
+Package Listings Warning: Text dropped after begin of listing on input line 160
+.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 171--199
+
+ []
+
+\openout4 = `figures/main-figure8.dpth'.
+
+[6
 
 
 
@@ -1664,51 +1711,35 @@ Package Listings Warning: Text dropped after begin of listing on input line 43.
 A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
 isable this.
 
-Underfull \hbox (badness 10000) in paragraph at lines 51--64
-|  \T1/zi4/m/n/9 mocked_-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 51--64
-|  \T1/zi4/m/n/9 fn(input,
- []
-
-
-Underfull \hbox (badness 1024) in paragraph at lines 51--64
-\T1/aer/m/n/9 zex-ter-nal: pic-ture
- []
-
-
-Underfull \hbox (badness 2856) in paragraph at lines 51--64
-|  \T1/aer/m/it/9 sta-te-ments  \T1/aer/m/n/9 [
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 51--64
-\T1/aer/m/sc/9 tikz-pic-ture
- []
-
-
-Underfull \hbox (badness 3989) in paragraph at lines 51--64
-\T1/aer/m/sc/9 op-ti-mi-zed away
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 51--64
-\T1/aer/m/sc/9 to ex-por-ted
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 51--64
+Underfull \hbox (badness 10000) in paragraph at lines 201--215
 
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+LaTeX Warning: Reference `lst:ct-seq' on page \thepage  undefined on input line
+ 218.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 218--218
+[][][]\T1/aer/m/n/9 .[][][]$\T1/zi4/m/n/8 https : / / people . mozilla . org / 
+~jorendorff / es6-[]draft . html #
+ []
+
+
+LaTeX Warning: Reference `lst:du-seq' on page \thepage  undefined on input line
+ 220.
+
+
+LaTeX Warning: Reference `lst:ct-seq' on page \thepage  undefined on input line
+ 238.
+
+
+LaTeX Warning: Reference `lst:du-seq' on page \thepage  undefined on input line
+ 239.
 
 ) (./evaluation.tex) (./related.tex
 
-LaTeX Warning: Citation 'Liskov1988' on page 6 undefined on input line 5.
+LaTeX Warning: Citation 'Liskov1988' on page 7 undefined on input line 5.
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 5--5
@@ -1717,46 +1748,46 @@ Underfull \hbox (badness 10000) in paragraph at lines 5--5
  []
 
 
-LaTeX Warning: Citation 'Maffeis2008' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Maffeis2008' on page 7 undefined on input line 11.
 
 
-LaTeX Warning: Citation 'Smith2011' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Smith2011' on page 7 undefined on input line 11.
 
 
-LaTeX Warning: Citation 'Gardner2012' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Gardner2012' on page 7 undefined on input line 11.
 
 
-LaTeX Warning: Citation 'Gardner2013' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Gardner2013' on page 7 undefined on input line 11.
 
 
-LaTeX Warning: Citation 'Bodin2014' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Bodin2014' on page 7 undefined on input line 11.
 
 
-LaTeX Warning: Citation 'Maffeis2009' on page 6 undefined on input line 12.
+LaTeX Warning: Citation 'Maffeis2009' on page 7 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Maffeis2009a' on page 6 undefined on input line 12.
+LaTeX Warning: Citation 'Maffeis2009a' on page 7 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Thiemann2005' on page 6 undefined on input line 16.
+LaTeX Warning: Citation 'Thiemann2005' on page 7 undefined on input line 16.
 
 
-LaTeX Warning: Citation 'Jensen2009' on page 6 undefined on input line 16.
+LaTeX Warning: Citation 'Jensen2009' on page 7 undefined on input line 16.
 
 
-LaTeX Warning: Citation 'Jensen2012' on page 6 undefined on input line 16.
+LaTeX Warning: Citation 'Jensen2012' on page 7 undefined on input line 16.
 
 
-LaTeX Warning: Citation 'Andreasen' on page 6 undefined on input line 17.
+LaTeX Warning: Citation 'Andreasen' on page 7 undefined on input line 17.
 
 
-LaTeX Warning: Citation 'Andersen1994' on page 6 undefined on input line 20.
+LaTeX Warning: Citation 'Andersen1994' on page 7 undefined on input line 20.
 
 
-LaTeX Warning: Citation 'Jang2009' on page 6 undefined on input line 20.
+LaTeX Warning: Citation 'Jang2009' on page 7 undefined on input line 20.
 
 
-LaTeX Warning: Citation 'Wei2014' on page 6 undefined on input line 20.
+LaTeX Warning: Citation 'Wei2014' on page 7 undefined on input line 20.
 
 
 Overfull \hbox (1.58095pt too wide) in paragraph at lines 8--21
@@ -1775,11 +1806,11 @@ r/m/n/9 [[]
  []
 
 
-LaTeX Warning: Citation 'Winograd-Cort2013' on page 6 undefined on input line 2
+LaTeX Warning: Citation 'Winograd-Cort2013' on page 7 undefined on input line 2
 7.
 
 
-LaTeX Warning: Citation 'Elliott1997' on page 6 undefined on input line 27.
+LaTeX Warning: Citation 'Elliott1997' on page 7 undefined on input line 27.
 
 ) (./conclusion.tex)
 
@@ -1800,6 +1831,9 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 115.
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 115.
 Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 115.
 
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
 LaTeX Warning: There were undefined references.
 
 
@@ -1813,17 +1847,17 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 115.
  ) 
 Here is how much of TeX's memory you used:
- 34699 strings out of 493108
- 748329 string characters out of 6140726
- 1383349 words of memory out of 5000000
- 37529 multiletter control sequences out of 15000+600000
+ 34714 strings out of 493108
+ 748539 string characters out of 6140726
+ 1374349 words of memory out of 5000000
+ 37544 multiletter control sequences out of 15000+600000
  55103 words of font info for 72 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,16n,76p,944b,1637s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 56i,12n,76p,944b,1696s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb>
-Output written on figures/main-figure4.pdf (1 page, 8645 bytes).
+Output written on figures/main-figure8.pdf (1 page, 8647 bytes).
 PDF statistics:
- 42 PDF objects out of 1000 (max. 8388607)
+ 44 PDF objects out of 1000 (max. 8388607)
  15 compressed objects within 1 object stream
  2 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)

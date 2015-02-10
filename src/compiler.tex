@@ -1,6 +1,12 @@
 \section{Compiler} \label{section:compiler}
 
 \comment{TODO insert that}\\
+
+We developed the compiler core in node.js Javascript.
+There already exist sets of tools for manipulating code in Javascript.
+We used the Esprima suite of tools.
+
+
 We expect developers to have a limited control over the implementation of the callee.
 In \textit{Node.js}, asynchronous functions are either part of the \textit{Node.js} API like \texttt{fs}, or wrapper from libraries like \texttt{express}.
 Instead of modifying the implementation of the callee, we propose to wrap it inside a function which transform its signature, leaving the semantic intact.

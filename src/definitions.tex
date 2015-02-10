@@ -157,7 +157,7 @@ This control over the execution lead to a modification of the control over the d
 Programmers are encouraged to arrange the computation as series of coarse-grained steps to carry over inputs.
 In this sense, Promises are comparable to the data-flow programming paradigm.
 
-\subsection{From Continuation to Promise} \label{seciton:definitions:analysis}
+\subsection{From continuations to Promises} \label{seciton:definitions:analysis}
 
 As detailed in the previous sections, continuations provide the control over the sequentiality of the asynchronous execution flow.
 Promises improve this control to allow chained compositions, and unify the syntax for the synchronous and asynchronous paradigm.
@@ -189,8 +189,8 @@ They present strong semantic differences, despite small syntax differences.
 % These conventions uses different control-flow.
 
 To translate the different conventions into the Promises one, the compiler would need to identify them.
-Such an identification might be possible with a static analysis. \comment{todo references}
-However, impracticable because of the heterogeneity.
+Such an identification might be possible with static analysis methods such as the points-to analysis\cite{Wei2014}, or a program logic\cite{Gardner2013,Bodin2014}.
+However, it seems impracticable because of the heterogeneity.
 Indeed, in the browser, each library seems to provide its own convention.
 
 In this paper, we are interested in the transformation from imbrications to chains, not from one convention to another.
@@ -223,7 +223,7 @@ A more in-depth description of Dues and their creation follows in the next parag
 \begin{code}[js, %
              caption={Example of a due}, %
              label={lst:due}] %
-var my_fn_due = require('due').mock(my_fn);
+var my_fn_due = require('due').mock(my_fn); //@\label{lst:due:mock}@
 
 var due = my_fn_due(input);
 
@@ -237,9 +237,10 @@ due.then(function continuation(error, result) {
 \end{code}
 
 A due is typically created inside the function which returns it.
-In listing \ref{lst:due}, the \texttt{mock} method create a Due-compatible function from \texttt{my\_fn}.
-We illustrate the creation of a Due with the \texttt{mock} method, in listing \ref{lst:due-creation}.
+In listing \ref{lst:due}, line \ref{lst:due:mock} the \texttt{mock} method wraps \texttt{my\_fn} in a Due-compatible function.
+The generation of this code should be straight from the existing.
 
+We illustrate the the \texttt{mock} method and the creation of a Due in listing \ref{lst:due-creation}.
 At its creation, line \ref{lst:due-creation:new}, the due expects a callback containing the deferred operation, \texttt{my\_fn}.
 This callback is executed synchronously with the function \texttt{settle} as argument to settle the Due, synchronously or asynchronously.
 % Indeed, the operation might be synchronous, or asynchronous.
@@ -260,7 +261,7 @@ If the deferred operation is asynchronous, this continuation is called during th
              caption={Creation of a due}, %
              label={lst:due-creation}] %
 Due.mock = function(my_fn) {
-  return function() {
+  return function mocked_fn() {
     var _args = Array.prototype.slice.call(arguments),
         _this = this;
 
@@ -272,7 +273,7 @@ Due.mock = function(my_fn) {
 }
 \end{code}
 
-The composition of Dues is essentially the same than for Promises, detailed in section \ref{section:definitions:promise}.
+The composition of Dues is essentially the same than for Promises (see section \ref{section:definitions:promise}).
 % This composition is explained in details in section \ref{section:definitions:promise}. %, and illustrated specifically for Dues in listing \ref{lst:dues-sequence}.
 Through this chained composition, Dues arrange the execution flow as a sequence of actions to carry on inputs.
 
@@ -296,9 +297,9 @@ Therefore, the equivalence between a continuation and a Due is trivial.
 % This equivalence, and its composition are explained in details in section \ref{section:equivalence}.
 Dues are admittedly tailored for this paper, hence, they are not designed to be written by developers, like Promises are.
 They are an intermediary steps between classical continuation and Promises.
-We highlight in the section \ref{section:equivalence} the equivalence between the two latter.
+We highlight in section \ref{section:equivalence} the equivalence between the two latter.
 But our goal is also to highlight the similitudes between the chained composition, and data-flow paradigms.
-Indeed, both arrange the computation as series of chained operations to carry, in parallel and in sequence.
+Indeed, both arrange the computation as series of chained operations to execute, in parallel and in sequence.
 
 
 % In listing \ref{lst:due}, \texttt{due} is settled when the function \texttt{settle} is called.

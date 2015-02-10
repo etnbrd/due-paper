@@ -23,3 +23,10 @@
 \newcommand{\ftnt}[1]{
   \footnote{\small{\url{#1}}}
 }
+
+\newlength\callStackIndentation
+\newcommand{\level}[1]{%
+  \setlength\callStackIndentation{2em}%
+  \hspace*{#1\callStackIndentation}%
+}
+

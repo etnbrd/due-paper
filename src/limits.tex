@@ -6,6 +6,19 @@ For this demonstration to be reasonable, we intentionally restricted it to conti
 The automation of this equivalence exposes some other limitations in corner cases.
 We explain in the next paragraphs four compilation steps with their limitations and the choices made to address them.
 
+
+
+\comment{TODO insert this}
+We developed the compiler core in node.js Javascript.
+There already exist sets of tools for manipulating code in Javascript.
+We used the Esprima suite of tools.
+
+Because it was the fastest solution, we built the compiler as a web page.
+We used a tool to make node.js code compatible with the browser environment.
+The compiler is available online to reproduce the tests.
+
+
+
 \subsection{Continuations}
 
 \subsubsection{Identification}
