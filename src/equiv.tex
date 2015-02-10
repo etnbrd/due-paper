@@ -7,9 +7,9 @@ The limitations preserves the execution order, the execution linearity and the s
 
 \subsection{Execution order}
 
-The compiler spots function calls with a continuation.
-Such calls are similar to the abstraction in (\ref{eq:order:source}).
-It relocates the continuation in a call to the method $\textbf{then}$, which references the Due returned by the function $fn_\textbf{due}$, wrapping $fn$.
+The compiler spots function calls with a continuation, similar to the abstraction in (\ref{eq:order:source}).
+It wraps the function $fn$ into the function $fn_\textbf{due}$ to return a Due.
+ANd it relocates the continuation in a call to the method $\textbf{then}$, which references the Due previously returned.
 The result should be similar to (\ref{eq:order:target}).
 \begin{equation} \label{eq:order:source}
 fn([arguments], continuation)
@@ -20,15 +20,15 @@ fn_\textbf{due}([arguments])\textbf{.then}(continuation)
 
 The execution order is different whether $continuation$ is called synchronously, or asynchronously.
 If $fn$ is synchronous, it calls the $continuation$ within its execution.
-% There might be some statements after the execution of the $continuation$.
+It might execute statements after the execution of $continuation$.
 If $fn$ is asynchronous, the continuation is called after the end of the current execution, after $fn$.
-The transformation erases this difference execution order.
+The transformation erases this difference in the execution order.
 In both cases, the transformation relocates the execution of $continuation$ after the execution of $fn$.
-$fn$ must be asynchronous to preserve the execution order.
+The latter must be asynchronous to preserve the execution order.
 
 \subsection{Execution linearity}
 
-The compiler transform nested imbrication of continuation, like in (\ref{eq:state:source}) into a flatten chain of calls encapsulating continuations, like in (\ref{eq:state:target}).
+The compiler transform a nested imbrication of continuations, similar to the abstraction in (\ref{eq:state:source}) into a flatten chain of calls encapsulating them, like in (\ref{eq:state:target}).
 \begin{align} \label{eq:state:source}
 &fn1([arguments], cont1 \{\nonumber\\
 &\qquad  declare ~ variable\nonumber\\

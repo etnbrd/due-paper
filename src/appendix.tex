@@ -1,6 +1,104 @@
 \vfill\eject
 \appendix
 
+\section{Evaluation results} \label{section:results}
+
+29 projects with no continuations.
+\begin{itemize}
+\item \texttt{app-json-fetcher}
+\item \texttt{express-resource-plus}
+\item \texttt{fizzbuzz-hypermedia-server}
+\item \texttt{flair}
+\item \texttt{generator-wikismith}
+\item \texttt{brokowski}
+\item \texttt{claus}
+\item \texttt{costa}
+\item \texttt{express-device}
+\item \texttt{heroku-proxy}
+\item \texttt{http-test-servers}
+\item \texttt{jellyjs-plugin-httpserver}
+\item \texttt{loopback-angular-cli}
+\item \texttt{loopback-explorer}
+\item \texttt{monami}
+\item \texttt{mongoose-epxress}
+\item \texttt{nodebootstrap-server}
+\item \texttt{oauth-express}
+\item \texttt{public-server}
+\item \texttt{scrapit}
+\item \texttt{sik}
+\item \texttt{sonea}
+\item \texttt{vsoft-explorer}
+\item \texttt{webs-weeia}
+\item \texttt{code-connect-server}
+\item \texttt{csp-endpoint}
+\item \texttt{glsl-transition-minify}
+\item \texttt{moby}
+\item \texttt{squirrel-server}
+\end{itemize}
+
+10 projects containing \texttt{eval} or \texttt{with} statements
+\begin{itemize}
+\item \texttt{arkhaios}
+\item \texttt{browserman}
+\item \texttt{infectwit}
+\item \texttt{ldapp}
+\item \texttt{levelhud}
+\item \texttt{manet}
+\item \texttt{solid}
+\item \texttt{swac}
+\item \texttt{swac-odm}
+\item \texttt{adnoce}
+\end{itemize}
+
+5 projects already using asynchronous frameworks.
+\begin{itemize}
+\item \texttt{boomerang-server} (es6-promise)
+\item \texttt{hyper.io} (when)
+\item \texttt{node-lanetix-microservice} (bluebird)
+\item \texttt{librarian} (bluebird)
+\item \texttt{webtasks} (subtask)
+\end{itemize}
+
+4 projects failed their tests before the compilation.
+\begin{itemize}
+\item \texttt{express-orm-mvc}
+\item \texttt{hangout}
+\item \texttt{derp}
+\item \texttt{ord}
+\end{itemize}
+
+3 Projects do not provide tests.
+\begin{itemize}
+\item \texttt{tuzi}
+\item \texttt{inchi-server}
+\item \texttt{otwo}
+\end{itemize}
+
+10 projects successfully compile.
+The compiler detected 172 callbacks, 52 of them are compatible continuations.
+
+
+
+\begin{tabular}{l r r r r r r }
+                                      & \multicolumn{2}{c}{continuations}      & \multicolumn{4}{c}{chains length}\\
+name                                  & total              & compiled          & 1  & 2 & 3 & 4 \\
+\hline
+\texttt{express-couchUser}            & 40                 & 20                & 9  & 2 & 1 & 1 \\
+\texttt{gifsockets-server}            & 3                  & 1                 & 1  &           \\ 
+\texttt{node-heroku-bouncer}          & 7                  & 3                 & 3  &           \\
+\texttt{moonridge}                    & 37                 & 6                 & 2  & 2         \\
+\texttt{redis-key-overview}           & 14                 & 9                 & 6  &   & 1     \\
+\texttt{slack-integrator}             & 6                  & 3                 & 1  & 1         \\
+\texttt{timbits}                      & 34                 & 8                 & 8              \\
+\texttt{tingo-rest}                   & 12                 & 4                 & 4              \\
+\texttt{express-endpoint}             & 19                 & 2                 & 2              \\
+\hline
+total                                 & 172                & 54                & 36 & 5 & 2 & 1 \\
+\end{tabular}
+
+
+
+
 \section{Due implementation} \label{section:dueimpl}
 
 We present the implementation of Due in listing \ref{lst:dueimpl}, with a small set of test cases in listing \ref{lst:testdueimpl}.
@@ -17,21 +115,3 @@ We present the implementation of Due in listing \ref{lst:dueimpl}, with a small 
              label={lst:testdueimpl}
              }
              {../../due/test/index.js}
-
-% \section{Simple Promise implementation} \label{section:spimpl}
-
-% We present a simple implementation of Promise in listing \ref{lst:simplepromise}, with a small set of test cases in listing \ref{lst:testpromise}.
-
-% \includecode{js, %
-%              caption={Simple implementation of Promise}, %
-%              label={lst:simplepromise}
-%              }
-%              {snippets/SimplePromise/src/index.js}
-
-
-% \includecode{js, %
-%              caption={Tests for the simple implementation of Promise}, %
-%              label={lst:testpromise}
-%              }
-%              {snippets/SimplePromise/test/index.js}
-

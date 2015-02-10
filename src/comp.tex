@@ -5,8 +5,12 @@ The compilation process contains two important steps, the identification of the 
 
 \subsection{Continuation identification}
 
+The first compilation step is to identify the continuations and their imbrications.
+The callback hell occurs only when using callbacks defined \textit{in situ}.
+The compiler detects only such callbacks.
+This detection is syntactic.
+
 The equivalence is applicable only on continuations.
-The first compilation step is to identify the continuations among the callbacks.
 A continuation is a callback invoked only once, asynchronously.
 Spotting a continuation implies to identify these two conditions.
 There is no syntactical difference between a synchronous and an asynchronous callee.
