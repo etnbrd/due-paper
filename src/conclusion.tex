@@ -15,16 +15,16 @@ We present a compiler to automate this transformation on code bases, and evaluat
 This transformation flatten a nested imbrication of continuations.
 The result is a sequence of operations encapsulated in Dues.
 Dues, like Promises, arrange both the control and data flow.
-They are placeholder for the outcome of an operation.
+They are placeholders for the outcome of an operation.
 The outcome of an operation is assigned as the input of the next.
 Such an arrangement is very suggestive of a data flow process, that is a chain of operations feeding the next with the result of the previous.
 
 % Web applications manipulate flows of user requests.
 We aim at pushing further this analogy.
-A web application manipulates flow of user requests.
-We think it is possible to arrange such an application as a chain of independent operations communicating by flow of messages.
+A web application manipulates a flow of user requests.
+We think it is possible to arrange such an application as a chain of independent operations communicating by messages.
 We want to impose the compiler to bring complete independence to the asynchronous operations delimited by the Dues.
 % So that the only communication is of their results along the flow.
-Such a compiler would be able to transform a monolithic program into a chain of independent asynchronous operations linked by a flow of data.
+Such a compiler would be able to transform a monolithic program into a chain of independent asynchronous operations linked by a flow of messages.
 We expect the possibility for new execution models to take advantage of this independence to bring performance scalability.
-While developers would continue using the monolithic model for its evolution scalability.
+Developers could continue to use the monolithic model for its evolution scalability, and leave the performance scalability to such execution models.
