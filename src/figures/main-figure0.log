@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.5)  9 FEB 2015 15:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Arch Linux) (preloaded format=pdflatex 2015.2.5)  11 FEB 2015 19:41
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1269,9 +1269,13 @@ Package: marginnote 2012/03/29 v1.1i non floating margin notes for LaTeX
 \c@mn@abspage=\count320
 )
 \callStackIndentation=\skip74
+\pgf@layerbox@background=\box45
+\pgf@layerboxsaved@background=\box46
+\pgf@layerbox@foreground=\box47
+\pgf@layerboxsaved@foreground=\box48
 ) (./utils/code.tex (/usr/share/texmf-dist/tex/latex/listings/listings.sty
 \lst@mode=\count321
-\lst@gtempboxa=\box45
+\lst@gtempboxa=\box49
 \lst@token=\toks57
 \lst@length=\count322
 \lst@currlwidth=\dimen194
@@ -1288,7 +1292,7 @@ Package: marginnote 2012/03/29 v1.1i non floating margin notes for LaTeX
 File: lstmisc.sty 2014/03/04 1.5c (Carsten Heinz)
 \c@lstnumber=\count327
 \lst@skipnumbers=\count328
-\lst@framebox=\box46
+\lst@framebox=\box50
 ) (/usr/share/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2014/03/04 1.5c listings configuration
 ))
@@ -1334,7 +1338,7 @@ LaTeX Font Info:    ... okay on input line 56.
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count332
 \scratchdimen=\dimen198
-\scratchbox=\box47
+\scratchbox=\box51
 \nofMPsegments=\count333
 \nofMParguments=\count334
 \everyMPshowfont=\toks58
@@ -1365,7 +1369,7 @@ Package frenchb.ldf Warning: Figures' and tables' captions might look like
 
 LaTeX Info: Redefining \dots on input line 56.
 LaTeX Info: Redefining \up on input line 56.
-\AtBeginShipoutBox=\box48
+\AtBeginShipoutBox=\box52
 
 Package hyperref Warning: Height of page (\paperheight) is invalid (0.0pt),
 (hyperref)                using 11in.
@@ -1423,9 +1427,9 @@ LaTeX Font Info:    Try loading font information for T1+zi4 on input line 28.
 (/usr/share/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2014/06/22 T1/zi4 (Inconsolata)
 )
-Overfull \hbox (2.90059pt too wide) in paragraph at lines 28--32
+Overfull \hbox (9.05644pt too wide) in paragraph at lines 28--32
 \T1/aer/m/n/9 gra-phi-cal en-vi-ron-ment : the Do-cu-ment Ob-ject Mo-del (DOM[]
-[][]
+[][]).
  []
 
 
@@ -1438,9 +1442,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 44--44
  []
 
 
-Underfull \vbox (badness 2142) has occurred while \output is active []
-
-
 LaTeX Warning: Reference `section:definitions' on page \thepage  undefined on i
 nput line 59.
 
@@ -1449,8 +1450,8 @@ LaTeX Warning: Reference `section:equivalence' on page \thepage  undefined on i
 nput line 60.
 
 
-LaTeX Warning: Reference `section:limits' on page \thepage  undefined on input 
-line 61.
+LaTeX Warning: Reference `section:compiler' on page \thepage  undefined on inpu
+t line 61.
 
 
 LaTeX Warning: Reference `section:evaluation' on page \thepage  undefined on in
@@ -1471,73 +1472,69 @@ Overfull \hbox (3.117pt too wide) in paragraph at lines 12--13
 
 
 LaTeX Warning: Reference `lst:continuation' on page \thepage  undefined on inpu
-t line 39.
+t line 38.
 
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 44.
+nput line 43.
 
-Package Listings Warning: Text dropped after begin of listing on input line 44.
+Package Listings Warning: Text dropped after begin of listing on input line 43.
 
 
 LaTeX Font Info:    Font shape `T1/zi4/bx/n' in size <7> not available
-(Font)              Font shape `T1/zi4/b/n' tried instead on input line 45.
+(Font)              Font shape `T1/zi4/b/n' tried instead on input line 44.
 
 LaTeX Warning: Reference `lst:cbhell' on page \thepage  undefined on input line
- 59.
+ 58.
 
 
-Package Listings Warning: Text dropped after begin of listing on input line 66.
+Package Listings Warning: Text dropped after begin of listing on input line 65.
 
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 99--99
+Underfull \hbox (badness 10000) in paragraph at lines 98--98
 [][][]\T1/aer/m/n/9 .[][][]$\T1/zi4/m/n/8 https : / / people . mozilla . org / 
 ~jorendorff / es6-[]draft . html #
  []
 
 
-Package Listings Warning: Text dropped after begin of listing on input line 117
+Package Listings Warning: Text dropped after begin of listing on input line 116
 .
 
 
 LaTeX Warning: Reference `lst:cbhell' on page \thepage  undefined on input line
- 129.
+ 128.
 
 
 LaTeX Warning: Reference `lst:promises-sequence' on page \thepage  undefined on
- input line 134.
+ input line 133.
 
 
-Package Listings Warning: Text dropped after begin of listing on input line 142
+Package Listings Warning: Text dropped after begin of listing on input line 141
 .
 
 
-LaTeX Warning: Reference `section:definitions:promise' on page \thepage  undefi
-ned on input line 176.
+LaTeX Warning: Citation 'Morrison1994' on page 3 undefined on input line 157.
 
 
 LaTeX Warning: Reference `section:definitions:promise' on page \thepage  undefi
-ned on input line 186.
+ned on input line 175.
 
 
-LaTeX Warning: Citation 'Wei2014' on page 3 undefined on input line 192.
+LaTeX Warning: Reference `section:definitions:promise' on page \thepage  undefi
+ned on input line 185.
 
 
-LaTeX Warning: Citation 'Gardner2013' on page 3 undefined on input line 192.
+LaTeX Warning: Citation 'Wei2014' on page 3 undefined on input line 191.
 
 
-LaTeX Warning: Citation 'Bodin2014' on page 3 undefined on input line 192.
+LaTeX Warning: Citation 'Gardner2013' on page 3 undefined on input line 191.
 
 
-Underfull \vbox (badness 4378) has occurred while \output is active []
+LaTeX Warning: Citation 'Bodin2014' on page 3 undefined on input line 191.
 
 
 LaTeX Warning: Reference `lst:due' on page \thepage  undefined on input line 21
 5.
-
-
-LaTeX Warning: Reference `section:dueimpl' on page \thepage  undefined on input
- line 216.
 
 
 Package Listings Warning: Text dropped after begin of listing on input line 225
@@ -1546,6 +1543,14 @@ Package Listings Warning: Text dropped after begin of listing on input line 225
 
 LaTeX Warning: Reference `lst:due' on page \thepage  undefined on input line 24
 0.
+
+
+LaTeX Warning: Reference `lst:due:mock' on page \thepage  undefined on input li
+ne 240.
+
+
+LaTeX Warning: Reference `lst:then' on page \thepage  undefined on input line 2
+41.
 
 
 LaTeX Warning: Reference `lst:due-creation' on page \thepage  undefined on inpu
@@ -1557,190 +1562,159 @@ input line 244.
 
 
 LaTeX Warning: Reference `lst:due-creation:call' on page \thepage  undefined on
- input line 247.
+ input line 248.
 
 
-Package Listings Warning: Text dropped after begin of listing on input line 262
+Package Listings Warning: Text dropped after begin of listing on input line 263
 .
 
 
 LaTeX Warning: Reference `section:definitions:promise' on page \thepage  undefi
-ned on input line 276.
+ned on input line 277.
 
 
 LaTeX Warning: Reference `section:equivalence' on page \thepage  undefined on i
-nput line 300.
+nput line 301.
 
 
-Overfull \hbox (1.71712pt too wide) in paragraph at lines 295--303
+Overfull \hbox (1.71712pt too wide) in paragraph at lines 296--302
 []\T1/aer/m/n/9 This sim-pli-fied spe-ci-fi-ca-tion adopts the same conven-tion
  than
  []
 
 ) (./equiv.tex
 
-LaTeX Warning: Reference `lst:ct-serial' on page \thepage  undefined on input l
-ine 6.
+LaTeX Warning: Reference `eq:order:source' on page \thepage  undefined on input
+ line 10.
 
 
-LaTeX Warning: Reference `lst:du-serial' on page \thepage  undefined on input l
-ine 7.
+LaTeX Warning: Reference `eq:order:target' on page \thepage  undefined on input
+ line 13.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 8--8
-[][][]\T1/aer/m/n/9 .[][][]$\T1/zi4/m/n/8 http : / / www . ecma-[]international
- . org / ecma-[]262 / 5 . 1 /
- []
+LaTeX Warning: Reference `eq:state:source' on page \thepage  undefined on input
+ line 33.
 
 
-Package Listings Warning: Text dropped after begin of listing on input line 13.
+LaTeX Warning: Reference `eq:state:target' on page \thepage  undefined on input
+ line 33.
 
 
-\openout4 = `figures/main-figure0.dpth'.
-
-[4
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
+LaTeX Warning: Reference `eq:state:source' on page \thepage  undefined on input
+ line 68.
 
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
-isable this.
+LaTeX Warning: Reference `eq:state:target' on page \thepage  undefined on input
+ line 70.
 
-Underfull \hbox (badness 4291) in paragraph at lines 24--32
-|  \T1/aer/m/it/9 ins-truc-tions  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
- []
+) (./comp.tex) (./evaluation.tex
 
+LaTeX Warning: Reference `section:results' on page \thepage  undefined on input
+ line 42.
 
-Underfull \hbox (badness 7981) in paragraph at lines 24--32
-\T1/aer/m/sc/9 be-cause it does not
- []
+) (./related.tex
 
-A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
-isable this.
-A tikzpicture has been optimized away. Use '/tikz/external/optimize=false' to d
-isable this.
-
-Underfull \hbox (badness 4291) in paragraph at lines 34--44
-|  \T1/aer/m/it/9 ins-truc-tions  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
- []
+LaTeX Warning: Citation 'Liskov1988' on page 6 undefined on input line 6.
 
 
-Underfull \hbox (badness 7981) in paragraph at lines 34--44
-\T1/aer/m/sc/9 be-cause it does not
- []
-
-
-Underfull \hbox (badness 4291) in paragraph at lines 34--44
-|  \T1/aer/m/it/9 ins-truc-tions  \T1/aer/m/n/9 [ \T1/aer/m/sc/9 tikz-
- []
-
-
-Underfull \hbox (badness 7981) in paragraph at lines 34--44
-\T1/aer/m/sc/9 be-cause it does not
- []
-
-
-Overfull \hbox (3.5311pt too wide) in paragraph at lines 23--45
-[][] 
- []
-
-
-Underfull \vbox (badness 3701) has occurred while \output is active []
-
-
-Package Listings Warning: Text dropped after begin of listing on input line 86.
-
-
-) (./evaluation.tex) (./related.tex
-
-LaTeX Warning: Citation 'Liskov1988' on page 5 undefined on input line 5.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 5--5
+Underfull \hbox (badness 10000) in paragraph at lines 6--6
 [][][]\T1/aer/m/n/9 .[][][]$\T1/zi4/m/n/9 https : / / people . mozilla . org / 
 ~jorendorff /
  []
 
 
-LaTeX Warning: Citation 'Maffeis2008' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Maffeis2008' on page 6 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Smith2011' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Smith2011' on page 6 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Gardner2012' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Gardner2012' on page 6 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Gardner2013' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Gardner2013' on page 6 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Bodin2014' on page 6 undefined on input line 11.
+LaTeX Warning: Citation 'Bodin2014' on page 6 undefined on input line 12.
 
 
-LaTeX Warning: Citation 'Maffeis2009' on page 6 undefined on input line 12.
+LaTeX Warning: Citation 'Maffeis2009' on page 6 undefined on input line 13.
 
 
-LaTeX Warning: Citation 'Maffeis2009a' on page 6 undefined on input line 12.
+LaTeX Warning: Citation 'Maffeis2009a' on page 6 undefined on input line 13.
 
 
-LaTeX Warning: Citation 'Thiemann2005' on page 6 undefined on input line 16.
+LaTeX Warning: Citation 'Thiemann2005' on page 6 undefined on input line 15.
 
 
-LaTeX Warning: Citation 'Jensen2009' on page 6 undefined on input line 16.
+LaTeX Warning: Citation 'Jensen2009' on page 6 undefined on input line 15.
 
 
-LaTeX Warning: Citation 'Jensen2012' on page 6 undefined on input line 16.
+LaTeX Warning: Citation 'Jensen2012' on page 6 undefined on input line 15.
 
 
-LaTeX Warning: Citation 'Andreasen' on page 6 undefined on input line 17.
+LaTeX Warning: Citation 'Andreasen' on page 6 undefined on input line 16.
 
 
-LaTeX Warning: Citation 'Andersen1994' on page 6 undefined on input line 20.
+LaTeX Warning: Citation 'Andersen1994' on page 6 undefined on input line 17.
 
 
-LaTeX Warning: Citation 'Jang2009' on page 6 undefined on input line 20.
+LaTeX Warning: Citation 'Jang2009' on page 6 undefined on input line 17.
 
 
-LaTeX Warning: Citation 'Wei2014' on page 6 undefined on input line 20.
+LaTeX Warning: Citation 'Wei2014' on page 6 undefined on input line 17.
 
 
-Overfull \hbox (1.58095pt too wide) in paragraph at lines 8--21
-\T1/aer/m/n/9 understanding[[], [], [],
+Overfull \hbox (19.45676pt too wide) in paragraph at lines 9--18
+\T1/aer/m/n/9 tic [[] ] to bring pro-gram un-ders-tan-ding [[],
  []
 
 
-Overfull \hbox (42.19337pt too wide) in paragraph at lines 8--21
-\T1/aer/m/n/9 in-fe-rence using abs-tract interpretation[[], [],
+Overfull \hbox (37.94043pt too wide) in paragraph at lines 9--18
+\T1/aer/m/n/9 abs-tract in-ter-pre-ta-tion [[], [], []
  []
 
 
-Overfull \hbox (19.76474pt too wide) in paragraph at lines 8--21
-\T1/aer/m/n/9 work[[] ] to Ja-vas-cript, by D. Jang \T1/aer/m/it/9 et al.\T1/ae
-r/m/n/9 [[]
- []
+LaTeX Warning: Citation 'Johnston2004' on page 6 undefined on input line 27.
+
+
+LaTeX Warning: Citation 'Cohen2012' on page 6 undefined on input line 27.
+
+
+LaTeX Warning: Citation 'Morrison1994' on page 6 undefined on input line 27.
+
+
+LaTeX Warning: Citation 'Kahn1974' on page 6 undefined on input line 27.
 
 
 LaTeX Warning: Citation 'Winograd-Cort2013' on page 6 undefined on input line 2
-7.
+9.
 
 
-LaTeX Warning: Citation 'Elliott1997' on page 6 undefined on input line 27.
+LaTeX Warning: Citation 'Elliott1997' on page 6 undefined on input line 29.
 
-) (./conclusion.tex)
+) (./conclusion.tex
+Overfull \hbox (1.89822pt too wide) in paragraph at lines 3--7
+[]\T1/aer/m/n/9 In this pa-per, we in-tro-duce a com-pi-ler to au-to-ma-ti-call
+y trans-
+ []
+
+)
 
 LaTeX Warning: Empty bibliography on input line 112.
 
 (./appendix.tex
+\openout4 = `figures/main-figure0.dpth'.
 
-LaTeX Warning: Reference `lst:dueimpl' on page \thepage  undefined on input lin
-e 6.
+[7
 
 
-LaTeX Warning: Reference `lst:testdueimpl' on page \thepage  undefined on input
- line 6.
 
-(../../due/src/index.js) (../../due/test/index.js))
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 115.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 115.
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 115.
@@ -1759,18 +1733,22 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 115.
  ) 
 Here is how much of TeX's memory you used:
- 34697 strings out of 493108
- 748289 string characters out of 6140726
- 1384349 words of memory out of 5000000
- 37527 multiletter control sequences out of 15000+600000
- 55103 words of font info for 72 fonts, out of 8000000 for 9000
+ 34938 strings out of 493108
+ 754228 string characters out of 6140726
+ 1116479 words of memory out of 5000000
+ 37771 multiletter control sequences out of 15000+600000
+ 56468 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,16n,76p,944b,1637s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb>
-Output written on figures/main-figure0.pdf (1 page, 8645 bytes).
+ 56i,12n,76p,944b,1250s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/share/te
+xmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/share/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr8.pfb>
+Output written on figures/main-figure0.pdf (1 page, 34062 bytes).
 PDF statistics:
- 42 PDF objects out of 1000 (max. 8388607)
- 15 compressed objects within 1 object stream
+ 59 PDF objects out of 1000 (max. 8388607)
+ 25 compressed objects within 1 object stream
  2 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

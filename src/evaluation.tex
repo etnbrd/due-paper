@@ -1,50 +1,45 @@
 \section{Evaluation} \label{section:evaluation}
 
-To validate our compiler, we used it to compile several Javascript projects likely to contains continuations.
+To validate our compiler, we compile several Javascript projects likely to contain continuations.
 We present the results of these tests.
 
 % \subsection{Projects selection}
 
-The compilation of a project require user interaction.
+The compilation of a project requires user interaction.
 To conduct the test in a reasonable time, we limit the test set to a minimum.
 We search the \textit{Node Package Manager} database to restrict the set to \textit{Node.js} projects.
-We refine the selection to web applications depending on the web framework \textit{express}, but not on the most common asynchronous libraries such as \textit{Q} and \textit{Async}.
+We refine the selection to web applications depending on the web framework \textit{express}, but not on the most common Promises libraries such as \textit{Q} and \textit{Async}.
 We refine further the selection to projects using the test frameworks \textit{mocha} in its default configuration.
-The test set contains 65 projects.
-The complete result is available in Appendix \ref{section:results}.
+The test set contains 64 projects.
 This subset is very small, and cannot represent the wide possibilities of Javascript.
 However, we believe it is sufficient to represent a majority of common cases.
 
 % \subsection{Run the tests}
 
-For each project, we verify that the project is correctly tested, and pass the tests.
-During the compilation, the user identifies the compatible continuations among the detected callbacks.
-We test the compilation result, and verify that the test result is the same that the original tests.
+For each project, we verify that the project is correctly tested, and passes the tests.
+During the compilation, we identify the compatible continuations among the detected callbacks.
+We apply the unmodified test on the compilation result.
 The compilation result should pass the tests as well.
-This is not a strong validation, but it assure the compiler to work in the most common cases.
+This is not a strong validation, but it assures the compiler to work as expected in most common cases.
 
 % \subsection{Results}
 
-On the 65 projects tested, almost a majority, 29 (45\%), does not contain any compatible continuations.
-We reckon that these projects use continuations the compiler didn't detect.
-10 (15\%) projects are not compilable because they contain \texttt{with} or \texttt{eval} statements.
-5 (8\%) projects used less common asynchronous libraries we didn't filter previously.
-4 (6\%) projects are not syntactically correct.
-4 (6\%) projects fail their tests before the compilation.
-3 (5\%) projects are not tested.
-And finally, 10 (15\%) projects compiled successfully.
-The compiler did not fail to compile any projects.
+Of the 64 projects tested, almost a half, does not contain any compatible continuations.
+We reckon that these projects use continuations the compiler is unable to detect.
+The other projects were rejected by the compiler because they contain \texttt{with} or \texttt{eval} statements, they use Promises libraries we didn't filter previously.
+9 projects compiled successfully.
+The compiler did not fail to compile any of these projects.
 
-Over the successfully compiled projects, the compiler detected 172 callbacks.
+Over the 10 successfully compiled projects, the compiler detected 172 callbacks.
 We manually identified 56 of them to be compatible continuations.
+The false positives are mainly the listeners that the web applications register to react to user requests.
+
 One project contains 20 continuations, the others contains between 9 and 1 continuations each.
-On the 56 continuations, 36 are single, and 20 continuations involved in an imbrication.
-There are 5 imbrications containing 2 continuations, 2 imbrication containing 3 continuations, and one imbrication containing 4 continuations.
+On the 56 continuations, 36 are single. %, and 20 continuations are involved in an imbrication.
+The others 20 continuations belong to imbrications of 2 to 4 continuations.
+% There are 5 imbrications of 2 continuations, 2 imbrications of 3 continuations, and 1 imbrication of 4 continuations.
 The result of these tests prove the compiler to be able to successfully transform imbrications of continuations.
-
-
-
-
+The details of these results are available in Appendix \ref{section:results}.
 
 
 
@@ -165,7 +160,7 @@ The result of these tests prove the compiler to be able to successfully transfor
 % timbits                       >> 8 chains (8 continuations / 34)     1: 8
 % tingo-rest                    >> 4 chains (4 continuations / 12)     1: 4
 % express-endpoint              >> 2 chains (2 continuations / 19)     1: 2 and already use async stuffs (step)
-%   >> 10 OK total of 56 continuations / 172, 1:36 2:5 3:2 4:1
+%   >> 9 OK total of 56 continuations / 172, 1:36 2:5 3:2 4:1
 
 
 % 29 no continuations
@@ -174,6 +169,6 @@ The result of these tests prove the compiler to be able to successfully transfor
 % 4 incorrect code
 % 4 test failed
 % 3 no tests
-% 10 OK
+% 9 OK
 
-% total 65 Projects
+% total 64 Projects

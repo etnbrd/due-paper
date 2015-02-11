@@ -1,9 +1,9 @@
 \section{Conclusion} \label{section:conclusion}
 
-In this paper, we introduce a compiler to automatically transform an imbrication of continuations into a sequence of Due.
-First, we define callbacks and Promises, and then introduce Dues, a siùpler specification to Promises.
-We explain the transformation from the nested imbrication of continuations to a chain of Dues.
-We present a compiler to automate this transformation on code bases, and evaluate it against a set of projects.
+In this paper, we introduce a compiler to automatically transform an imbrication of continuations into a sequence of Dues.
+First, we define callbacks and Promises, and then introduce Dues, a simpler specification to Promises.
+We explain the transformation from the nested imbrication of continuations to a chain of Dues, and present a compiler to automate this transformation on existing code bases.
+The compiler is evaluated against a set of \textit{npm} projects.
 
 % A continuation share its scope with its descendance, \textit{i.e.} the following imbricated continuations.
 % Imbricated continuations can share identifiers.
@@ -12,10 +12,10 @@ We present a compiler to automate this transformation on code bases, and evaluat
 % This difference of accessibility implies, after compilation, the segmentation of the asynchronous control flow into indepenent steps.
 % This segmentation is soft : their stacks are independent, but they share the heap.
 
-This transformation flatten a nested imbrication of continuations.
+This transformation flattens a nested imbrication of continuations.
 The result is a sequence of operations encapsulated in Dues.
-Dues, like Promises, arrange both the control and data flow.
-They are placeholders for the outcome of an operation.
+The latter, like Promises, arrange both the control and data flow.
+% They are placeholders for the outcome of an operation.
 The outcome of an operation is assigned as the input of the next.
 Such an arrangement is very suggestive of a data flow process, that is a chain of operations feeding the next with the result of the previous.
 
@@ -23,8 +23,8 @@ Such an arrangement is very suggestive of a data flow process, that is a chain o
 We aim at pushing further this analogy.
 A web application manipulates a flow of user requests.
 We think it is possible to arrange such an application as a chain of independent operations communicating by messages.
-We want to impose the compiler to bring complete independence to the asynchronous operations delimited by the Dues.
+We want to develop the compiler further to bring complete independence to the asynchronous operations delimited by the Dues.
 % So that the only communication is of their results along the flow.
-Such a compiler would be able to transform a monolithic program into a chain of independent asynchronous operations linked by a flow of messages.
-We expect the possibility for new execution models to take advantage of this independence to bring performance scalability.
-Developers could continue to use the monolithic model for its evolution scalability, and leave the performance scalability to such execution models.
+This independence would allow to transform a monolithic program into a chain of independent asynchronous operations linked by a flow of messages.
+We expect a possibility for new execution models to take advantage of this independence to bring performance scalability.
+Developers could continue to use the monolithic model for its evolution advantages, and leave the performance burdens to the execution engines.

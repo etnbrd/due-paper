@@ -3,6 +3,56 @@
 
 \section{Evaluation results} \label{section:results}
 
+On the 64 projects tested
+\begin{description}
+\item[29] (45.3\%) do not contain any compatible continuations,
+\item[10] (15.6\%) are not compilable because they contain \texttt{with} or \texttt{eval} statements,
+\item[5] (7.8\%) use less common asynchronous libraries we didn't filter previously,
+\item[4] (6.3\%) are not syntactically correct,
+\item[4] (6.3\%) fail their tests before the compilation,
+\item[3] (4.7\%) are not tested, and
+\item[10] (14.0\%) compile successfully.
+\end{description}
+The compiler do not fail to compile any projects.
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+[
+    pie chart,
+    slice type={nocont}{gray1},
+    slice type={eval}{gray2},
+    slice type={lib}{gray3},
+    slice type={err}{gray4},
+    slice type={fail}{gray5},
+    slice type={notest}{gray6},
+    slice type={ok}{red},
+    pie values/.style={font={\small}},
+    scale=2
+]
+
+\pie{}{%
+  45.3/nocont,%
+  15.6/eval,%
+  7.8/lib,%
+  6.3/err,%
+  6.3/fail,%
+  4.7/notest,%
+  14.0/ok%
+}
+
+\legend[shift={(1.3cm,0.9cm)}]{%
+  {No continuations}/nocont,%
+  {\texttt{with} or \texttt{eval} statments}/eval,%
+  {Promises libraries}/lib,%
+  {Syntax errors}/err,%
+  {Tests fail before compilation}/fail,%
+  {Not tested}/notest,%
+  {Compiled}/ok%
+}
+\end{tikzpicture}
+\caption{Compilation results distribution}
+\end{figure}
+
 29 projects contains no compatible continuations.
 \begin{itemize}
 \item \texttt{app-json-fetcher}
@@ -74,10 +124,8 @@
 \item \texttt{otwo}
 \end{itemize}
 
-10 projects successfully compile.
+9 projects successfully compile.
 The compiler detected 172 callbacks, 52 of them are compatible continuations.
-
-
 
 \begin{tabular}{l r r r r r r }
                                       & \multicolumn{2}{c}{continuations}      & \multicolumn{4}{c}{chains length}\\
@@ -95,8 +143,6 @@ name                                  & total              & compiled          &
 \hline
 total                                 & 172                & 54                & 36 & 5 & 2 & 1 \\
 \end{tabular}
-
-
 
 
 % \section{Due implementation} \label{section:dueimpl}
