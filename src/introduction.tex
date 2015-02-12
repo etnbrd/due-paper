@@ -25,12 +25,12 @@ The world wide web started as a document sharing platform for academics.
 It is now a rich application platform, pervasive, and accessible from almost everywhere.
 This transformation began in Netscape 2.0 with the introduction of Javascript, a web scripting language.
 
-Javascript was originally designed for the manipulation of a graphical environment : the Document Object Model (DOM\ftnt{http://www.w3.org/DOM/}).
+Javascript was originally designed for the manipulation of a graphical interface, the Document Object Model (DOM\ftnt{http://www.w3.org/DOM/}).
 Functions are first-class citizens ; it allows to manipulate them like any object, and to link them to react to asynchronous events, \textit{e.g.} user inputs and remote requests.
 These asynchronously triggered functions are named callbacks, and allow to efficiently cope with the distributed and inherently asynchronous architecture of the Internet.
 This made Javascript a language of choice to develop both client and, more recently, server applications for the web.
 
-Callbacks are well suited for small interactive scripts.
+Callbacks are well-suited for small interactive scripts.
 But in a complete application, they are ill-suited to control the larger asynchronous execution flow.
 Their use leads to intricate imbrications of function calls and callbacks, commonly presented as \textit{callback hell}\ftnt{http://maxogden.github.io/callback-hell/}, or \textit{pyramid of doom}.
 This is widely recognized as a bad practice and reflects the unsuitability of callbacks in complete applications.
@@ -38,7 +38,8 @@ Eventually, developers enhanced callbacks to meet their needs with the concept o
 
 Promises bring a different way to control the asynchronous execution flow, better suited for large applications.
 They fulfill this task well enough to be part of the next version of the Javascript language, ECMAScript 6\ftnt{http://people.mozilla.org/~jorendorff/es6-draft.html}.
-However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough, and start their code with the classical Javascript callback approach.
+However, because Javascript started as a scripting language, beginners are often not introduced to Promises early enough.
+Most APIs use the classical callback approach encouraging beginner in this practice.
 Moreover, despite its benefits, the concept of Promise is not yet widely acknowledged.
 Developers may implement their own library for asynchronous flow control before discovering existing ones.
 There is such a disparity between the needs for and the adoption of Promises libraries, that there are almost 40 different implementations\ftnt{https://github.com/promises-aplus/promises-spec/blob/master/implementations.md}.
@@ -54,7 +55,7 @@ This paper focuses on the transformation from imbrication of callbacks to chain 
 To avoid unnecessary modifications on this conditional control, we introduce an alternative to Promises leaving this conditional control to the developer, like callbacks.
 We call this simpler specification Dues.
 Our approach enables us to compile legacy Javascript code and brings a first automated step toward full Promises integration.
-This simple and pragmatic compiler has been tested over 64 \textit{npm} packages, 9 of them with success.
+This simple and pragmatic compiler has been tested over 64 \textit{Node.js} packages from the node package manager (npm\ftnt{https://www.npmjs.com/}), 9 of them with success.
 
 In section \ref{section:definitions} we define callbacks, Promises and Dues.
 In section \ref{section:equivalence}, we explain the transformation from imbrications of callbacks to sequences of Dues.

@@ -33,24 +33,24 @@ This interaction prevents the complete automation of the individual compilation 
 However, we are working on an automation at a global scale.
 We expect to be able to identify a continuation only based on the name of its callee, \textit{e.g.} \texttt{fs.readFile}.
 We built a service to gather these names along with their identification.
-The compiler query this service to present to the developer an estimated identification.
+The compiler queries this service to present to the developer an estimated identification.
 After the compilation, it sends back the identification corrected by the developer to refine the future estimations.
 In future works, we would like to study the possibility for such a service to assist, and ease the compilation process.
 
 \subsection{Generation of chains}
 
 The compositions of continuations and Dues are arranged differently.
-Continuations structure the execution flow as a tree, while the chain of Dues arrange it sequentially.
-A parent continuation can have several children, not a Due.
-The second compilation step is to identify the imbrications of continuations to transform them into chains.
-
+Continuations structure the execution flow as a tree, while a chain of Dues imposes to arrange it sequentially.
+A parent continuation can execute several children, while a Due allow to chain only one.
+The second compilation step is to identify the imbrications of continuations, and trim the extra branches to transform them into chains.
 % We consider an imbrication of continuations as a subtree of the linear execution tree.
-The compiler trims each tree of continuations to get chains that translate into Dues.
-If a continuation has more than one child, the compiler try to find a legitimate child to continue the chain.
-The legitimate child is the only parent among its siblings.
-If there is several parents among the children, then none are the legitimate child.
+% The compiler trims each tree of continuations to get chains that translate into Dues.
+
+If a continuation has more than one child, the compiler tries to find a single legitimate child to form the longest chain possible.
+This legitimate child is the only parent among its siblings.
+If there are several parents among the children, none are the legitimate child.
 The non legitimate children start a new tree.
-This step yields chains of continuations assured to be transformable into sequences of Dues.
+This step transform each tree of continuations into several chains of continuations that translate into sequences of Dues.
 The code generation from these chains is straightforward from the equivalence.
 
 

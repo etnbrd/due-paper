@@ -15,9 +15,8 @@ This paper brings the first step toward a compiler to help developers prepare th
 We present an equivalence between callbacks and Dues.
 The latter are a simpler specification of Promises developed for the purpose of this demonstration.
 From this equivalence, we implement a compiler to transform an imbrication of callbacks into a chain of Dues.
-This equivalence is limited to \textit{Node.js}-style asynchronous callbacks defined \textit{in situ}.
-We test our compiler over 64 \textit{npm} packages and show our results.
-9 of them are compatible and compile successfully.
+This equivalence is limited to \textit{Node.js}-style asynchronous callbacks declared \textit{in situ}.
+We evaluate our compiler over 64 \textit{npm} packages, 9 of them present compatible callbacks and compile successfully.
 
 We consider this shift to be a first step toward the merge of concepts from the data-flow programming model into the imperative programming model.
 

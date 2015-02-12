@@ -21,7 +21,7 @@ fn_\textbf{due}([arguments])\textbf{.then}(continuation)
 
 The execution order is different whether $continuation$ is called synchronously, or asynchronously.
 If $fn$ is synchronous, it calls the $continuation$ within its execution.
-It might execute $statements$ after the execution of $continuation$.
+It might execute $statements$ after executing $continuation$, before returning.
 If $fn$ is asynchronous, the continuation is called after the end of the current execution, after $fn$.
 The transformation erases this difference in the execution order.
 In both cases, the transformation relocates the execution of $continuation$ after the execution of $fn$.
@@ -60,8 +60,8 @@ It prevent the nested call to return the Due expected to continue the chain.
 On the other hand, conditional branching leaves the execution linearity and the semantic intact.
 If the nested asynchronous function is not called, the execution of the chain stops as expected.
 
-We demonstrate the equivalence with a sequence of two continuations.
-The equivalence is sound for a sequence of \textit{n} continuations.
+% We demonstrate the equivalence with a sequence of two continuations.
+% The equivalence is sound for a sequence of \textit{n} continuations.
 
 \subsection{Variable scope}
 

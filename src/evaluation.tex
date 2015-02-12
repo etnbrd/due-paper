@@ -10,13 +10,14 @@ To conduct the test in a reasonable time, we limit the test set to a minimum.
 We search the \textit{Node Package Manager} database to restrict the set to \textit{Node.js} projects.
 We refine the selection to web applications depending on the web framework \textit{express}, but not on the most common Promises libraries such as \textit{Q} and \textit{Async}.
 We refine further the selection to projects using the test frameworks \textit{mocha} in its default configuration.
+We use these tests to validate the compiler.
 The test set contains 64 projects.
 This subset is very small, and cannot represent the wide possibilities of Javascript.
 However, we believe it is sufficient to represent a majority of common cases.
 
 % \subsection{Run the tests}
 
-For each project, we verify that the project is correctly tested, and passes the tests.
+For each project, we verify that is is correctly tested, and passes the tests.
 During the compilation, we identify the compatible continuations among the detected callbacks.
 We apply the unmodified test on the compilation result.
 The compilation result should pass the tests as well.
@@ -28,18 +29,18 @@ Of the 64 projects tested, almost a half, does not contain any compatible contin
 We reckon that these projects use continuations the compiler is unable to detect.
 The other projects were rejected by the compiler because they contain \texttt{with} or \texttt{eval} statements, they use Promises libraries we didn't filter previously.
 9 projects compiled successfully.
-The compiler did not fail to compile any of these projects.
+The compiler did not fail to compile any project of the initial test set.
 
-Over the 10 successfully compiled projects, the compiler detected 172 callbacks.
+Over the 9 successfully compiled projects, the compiler detected 172 callbacks.
 We manually identified 56 of them to be compatible continuations.
 The false positives are mainly the listeners that the web applications register to react to user requests.
 
-One project contains 20 continuations, the others contains between 9 and 1 continuations each.
+One project contains 20 continuations, the others contains between 1 and 9 continuations each.
 On the 56 continuations, 36 are single. %, and 20 continuations are involved in an imbrication.
 The others 20 continuations belong to imbrications of 2 to 4 continuations.
 % There are 5 imbrications of 2 continuations, 2 imbrications of 3 continuations, and 1 imbrication of 4 continuations.
-The result of these tests prove the compiler to be able to successfully transform imbrications of continuations.
-The details of these results are available in Appendix \ref{section:results}.
+The result of this evaluation prove the compiler to be able to successfully transform imbrications of continuations.
+The details are available in Appendix \ref{section:results}.
 
 
 
